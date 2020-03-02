@@ -7,10 +7,13 @@ local Mol = {} --* liste des molecules
 local TextZone = {} --* liste de zone de text pour molecule
 local Donnes = {} --* liste de textzone mais specialement pour les donners
 local Buttons = {} --* liste des bouttons
+local TypeDo = {}
 local ClistMol = love.graphics.newCanvas(160, 450) --* canvas molecules
 local ClistDonne = love.graphics.newCanvas(475, 450) --* canvas Donnes
+local ClistType = love.graphics.newCanvas(130, 200)
 local C1 = { x = 10, y = 70 } --* pos canvas Mol
 local C2 = { x = 170, y = 70 } --* pos canvas Donnes
+local C3 = { x = 500, y = 115, draw = nil}
 local Scenter = {} --* liste center text buttons / textzone (doesn't need refresh)
 local font = love.graphics.newFont(16) --* load a font
 function love.load()
@@ -21,13 +24,26 @@ function love.load()
     Buttons[3] = {x = 550, y = 440, w = 50, h = 25, t = 'supp', s1 = 'select', s2 = ''}
     Buttons[4] = {x = 580, y = 80, w = 25, h = 25, t = '+', s1 = 'select', s2 = ''}
     Buttons[5] = {x = 610, y = 80, w = 25, h = 25, t = '-', s1 = 'select', s2 = ''}
-    Buttons[6] = {x = 750, y = 460, w = 40, h = 25, t = 'calcul', s1 = '', s2 = ''}
+    Buttons[6] = {x = 720, y = 550, w = 60, h = 25, t = 'calcul', s1 = '', s2 = ''}
+    --* Load TypeDo
+    TypeDo[1] = {x = 0, y = 0, w = ClistType:getWidth(), h = 25, t = "Masse Mol"}
+    TypeDo[2] = {x = 0, y = 25, w = ClistType:getWidth(), h = 25, t = "Mol"}
+    TypeDo[3] = {x = 0, y = 50, w = ClistType:getWidth(), h = 25, t = "Masse"}
+    TypeDo[4] = {x = 0, y = 75, w = ClistType:getWidth(), h = 25, t = "Concentration"}
+    TypeDo[5] = {x = 0, y = 100, w = ClistType:getWidth(), h = 25, t = "Volume"}
+    TypeDo[6] = {x = 0, y = 125, w = ClistType:getWidth(), h = 25, t = "Type"}
+    TypeDo[7] = {x = 0, y = 150, w = ClistType:getWidth(), h = 25, t = "Ks"}
+    TypeDo[8] = {x = 0, y = 175, w = ClistType:getWidth(), h = 25, t = "Positif"}
     --* Load center text doesn't need refresh
     Scenter["1"] = {x = TextZone[0].x + 5, y = TextZone[0].y + (TextZone[0].h - font:getHeight(TextZone[0].t)) / 2}
     Scenter["2"] = {x = Buttons[2].x + (Buttons[2].w - font:getWidth(Buttons[2].t)) / 2 - C2.x, y = Buttons[2].y + (Buttons[2].h - font:getHeight(Buttons[2].t)) / 2 - C2.y}
     Scenter["3"] = {x = Buttons[3].x + (Buttons[3].w - font:getWidth(Buttons[3].t)) / 2 - C2.x, y = Buttons[3].y + (Buttons[3].h - font:getHeight(Buttons[3].t)) / 2 - C2.y}
     Scenter["4"] = {x = Buttons[4].x + (Buttons[4].w - font:getWidth(Buttons[4].t)) / 2 - C2.x, y = Buttons[4].y + (Buttons[4].h - font:getHeight(Buttons[4].t)) / 2 - C2.y}
     Scenter["5"] = {x = Buttons[5].x + (Buttons[5].w - font:getWidth(Buttons[5].t)) / 2 - C2.x, y = Buttons[5].y + (Buttons[5].h - font:getHeight(Buttons[5].t)) / 2 - C2.y}
+    --* Load center text doesn't need refresh to typedo
+    for i = 1, #TypeDo do
+        Scenter[i] = {x = 5, y = TypeDo[i].y + (TypeDo[i].h - font:getHeight(TypeDo[i].t)) /2}
+    end
 
     --TODO setcanvas
     love.graphics.setCanvas(ClistMol)
@@ -36,6 +52,14 @@ function love.load()
     love.graphics.setCanvas(ClistDonne)
         love.graphics.setFont(font)
         love.graphics.setLineWidth(2)
+    love.graphics.setCanvas(ClistType)
+        love.graphics.setFont(font)
+        love.graphics.setLineWidth(2)
+        love.graphics.rectangle("line", 0, 0, ClistType:getWidth(), ClistType:getHeight())
+        for i = 1, #TypeDo do
+            love.graphics.rectangle("line", TypeDo[i].x, TypeDo[i].y, TypeDo[i].w, TypeDo[i].h)
+            love.graphics.print(TypeDo[i].t, Scenter[i].x, Scenter[i].y)
+        end
     love.graphics.setCanvas()
 
 end
@@ -61,11 +85,19 @@ function love.update(dt)
             end
         end
     end
+    if scene[1] == 'select' and C3.draw ~= nil then
+        --TODO change cursor si il est sur un TypeDo qui appartient a la scene
+        if mouse.x >= C3.x and mouse.x <= ClistType:getWidth() + C3.x and mouse.y >= C3.y and mouse.y <= ClistType:getHeight() + C3.y then
+            love.mouse.setCursor(love.mouse.getSystemCursor("hand"))
+        end
+    end
     if scene[2] ~= nil and scene[1] == 'select' then
         for i = 1, #Donnes[scene[2]] do
             --TODO change cursor si il est sur une textzone qui appartient a la scene
-            if mouse.x >= Donnes[scene[2]][i].x and mouse.x <=Donnes[scene[2]][i].x + Donnes[scene[2]][i].w and mouse.y >= Donnes[scene[2]][i].y and mouse.y <= Donnes[scene[2]][i].y + Donnes[scene[2]][i].h then
+            if mouse.x >= Donnes[scene[2]][i].x and mouse.x <= Donnes[scene[2]][i].x + Donnes[scene[2]][i].w and mouse.y >= Donnes[scene[2]][i].y and mouse.y <= Donnes[scene[2]][i].y + Donnes[scene[2]][i].h then
                 love.mouse.setCursor(love.mouse.getSystemCursor("ibeam"))
+            elseif mouse.x >= Donnes[scene[2]][i].typeDonne.x and mouse.x <=  Donnes[scene[2]][i].typeDonne.x + Donnes[scene[2]][i].typeDonne.w and mouse.y >= Donnes[scene[2]][i].typeDonne.y and mouse.y <= Donnes[scene[2]][i].typeDonne.y + Donnes[scene[2]][i].typeDonne.h then
+                love.mouse.setCursor(love.mouse.getSystemCursor("hand"))
             end
         end
         love.graphics.setCanvas(ClistDonne)
@@ -94,10 +126,15 @@ function love.update(dt)
                 ]]
                 x = Donnes[scene[2]][i].x
                 Donnes[scene[2]][i].y = 80 + (30 + 5) * (i - 1) + Donnes[scene[2]][i].dy
+                Donnes[scene[2]][i].typeDonne.y = Donnes[scene[2]][i].y
                 love.graphics.rectangle("line", x - C2.x, Donnes[scene[2]][i].y  - C2.y, Donnes[scene[2]][i].w, Donnes[scene[2]][i].h)
+                love.graphics.rectangle("line", Donnes[scene[2]][i].typeDonne.x - C2.x, Donnes[scene[2]][i].typeDonne.y - C2.y, Donnes[scene[2]][i].typeDonne.w, Donnes[scene[2]][i].typeDonne.h)
                 x = Donnes[scene[2]][i].x + 5
                 y = Donnes[scene[2]][i].y + (Donnes[scene[2]][i].h - font:getHeight(Donnes[scene[2]][i].t)) / 2
                 love.graphics.print(Donnes[scene[2]][i].t, x - C2.x, y - C2.y)
+                x = Donnes[scene[2]][i].typeDonne.x + 5
+                y = Donnes[scene[2]][i].typeDonne.y + (Donnes[scene[2]][i].typeDonne.h - font:getHeight(Donnes[scene[2]][i].typeDonne.t)) / 2
+                love.graphics.print(Donnes[scene[2]][i].typeDonne.t, x - C2.x, y - C2.y)
             end
 
         love.graphics.setCanvas()
@@ -156,6 +193,9 @@ function love.draw()
         --TODO Draw Canvas Donne
         love.graphics.draw(ClistDonne, C2.x, C2.y)
     end
+    if scene[2] ~= nil and scene[1] == 'select' and C3.draw ~= nil then
+        love.graphics.draw(ClistType, C3.x, C3.y)
+    end
     if scene[2] ~= nil and scene[3] == nil then
         --TODO Draw TextZone Text or Mol Text
         local t
@@ -184,6 +224,15 @@ function love.mousepressed()
                 scene[1] = 'input'
             end
             break
+        end
+    end
+    if scene[1] == 'select' and C3.draw ~= nil then
+        for i = 1, #TypeDo do
+            if mouse.x >= TypeDo[i].x + C3.x and mouse.x <= TypeDo[i].x + TypeDo[i].w + C3.x and mouse.y >= TypeDo[i].y + C3.y and mouse.y <= TypeDo[i].y + TypeDo[i].h + C3.y then
+                Donnes[scene[2]][C3.draw].typeDonne.t = TypeDo[i].t
+                C3.draw = nil
+                break
+            end
         end
     end
     if mouse.x >= Buttons[6].x and mouse.x <= Buttons[6].x + Buttons[6].w and mouse.y >= Buttons[6].y and mouse.y <= Buttons[6].y + Buttons[6].h then
@@ -215,15 +264,23 @@ function love.mousepressed()
                 --* reset scene and text
                 TextZone[0].t = ''
                 scene[2] = nil
+                C3.draw = nil
             end
         end
     elseif scene[1] == 'select' and scene[2] ~= nil then
         --TODO click pour select une molecule dnas la liste
         for i = 1, #Donnes[scene[2]] do
-            if mouse.x >= Donnes[scene[2]][i].x and mouse.x <=Donnes[scene[2]][i].x + Donnes[scene[2]][i].w and mouse.y >= Donnes[scene[2]][i].y and mouse.y <= Donnes[scene[2]][i].y + Donnes[scene[2]][i].h then
+            if mouse.x >= Donnes[scene[2]][i].x and mouse.x <= Donnes[scene[2]][i].x + Donnes[scene[2]][i].w and mouse.y >= Donnes[scene[2]][i].y and mouse.y <= Donnes[scene[2]][i].y + Donnes[scene[2]][i].h then
                 scene[3] = i
+                C3.draw = nil
+                break
+            elseif mouse.x >= Donnes[scene[2]][i].typeDonne.x and mouse.x <= Donnes[scene[2]][i].typeDonne.x + Donnes[scene[2]][i].typeDonne.w and mouse.y >= Donnes[scene[2]][i].typeDonne.y and mouse.y <= Donnes[scene[2]][i].typeDonne.y + Donnes[scene[2]][i].typeDonne.h then
+                C3.draw = i
                 break
             end
+        end
+        if C3.draw ~= nil then
+
         end
         if mouse.x >= Buttons[2].x and mouse.x <= Buttons[2].x + Buttons[2].w and mouse.y >= Buttons[2].y and mouse.y <= Buttons[2].y + Buttons[2].h then
             --TODO register donnes
@@ -232,6 +289,7 @@ function love.mousepressed()
             scene[3] = nil
             scene[2] = nil
             scene[1] = 'input'
+            C3.draw = nil
         elseif mouse.x >= Buttons[3].x and mouse.x <= Buttons[3].x + Buttons[3].w and mouse.y >= Buttons[3].y and mouse.y <= Buttons[3].y + Buttons[3].h then
             --TODO supp Mol in list
             --* reiterer les s2 des textzones
@@ -250,16 +308,18 @@ function love.mousepressed()
             scene[1] = 'input'
             scene[2] = nil
             scene[3] = nil
+            C3.draw = nil
         elseif mouse.x >= Buttons[4].x and mouse.x <= Buttons[4].x + Buttons[4].w and mouse.y >= Buttons[4].y and mouse.y <= Buttons[4].y + Buttons[4].h then
             --TODO add une Donne vide de la Mol
             if #Donnes[scene[2]] ~= 0 then
                 --* take les refs du dernier
                 local dT = Donnes[scene[2]][#Donnes[scene[2]]]
-                Donnes[scene[2]][#Donnes[scene[2]] + 1] = {x = dT.x, y = dT.y, w = dT.w, h = dT.h, t = '', s1 = '', s2 = dT.s2, s3 = dT.s3, dy = dT.dy}
+                Donnes[scene[2]][#Donnes[scene[2]] + 1] = {x = dT.x, y = dT.y, w = dT.w, h = dT.h, t = '', s1 = '', s2 = dT.s2, s3 = dT.s3, dy = dT.dy, typeDonne = {x = 340, y = 0, w = 125, h = 30, t = 'null'}}
             else
                 --* take create first ref
-                Donnes[scene[2]][#Donnes[scene[2]] + 1] = {x = 180, y = 0, w = 150, h = 30, t = '', s1 = '', s2 = scene[2], s3 = 1, dy = 0}
+                Donnes[scene[2]][#Donnes[scene[2]] + 1] = {x = 180, y = 0, w = 150, h = 30, t = '', s1 = '', s2 = scene[2], s3 = 1, dy = 0, typeDonne = {x = 340, y = 0, w = 125, h = 30, t = 'null'}}
             end
+            C3.draw = nil
         elseif mouse.x >= Buttons[5].x and mouse.x <= Buttons[5].x + Buttons[5].w and mouse.y >= Buttons[5].y and mouse.y <= Buttons[5].y + Buttons[5].h then
             --TODO supp une Donne dnas la liste Donnes de Mol
             if scene[3] ~= nil then
@@ -272,6 +332,7 @@ function love.mousepressed()
                 table.remove(Donnes[scene[2]], scene[3])
                 --* reset scene
                 scene[3] = nil
+                C3.draw = nil
             end
         end
     end
