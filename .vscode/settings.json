@@ -1,0 +1,12 @@
+{
+    "Lua.diagnostics.globals": [
+        "love"
+    ],
+    "Lua.diagnostics.disable": [
+        "emmy-lua"
+    ],
+    "cSpell.ignoreWords": [
+        ""
+    ],
+    "Lua.runtime.version": "Lua 5.1"
+}
