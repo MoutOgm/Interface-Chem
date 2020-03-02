@@ -21,13 +21,13 @@ function love.load()
     Buttons[3] = {x = 550, y = 440, w = 50, h = 25, t = 'supp', s1 = 'select', s2 = ''}
     Buttons[4] = {x = 580, y = 80, w = 25, h = 25, t = '+', s1 = 'select', s2 = ''}
     Buttons[5] = {x = 610, y = 80, w = 25, h = 25, t = '-', s1 = 'select', s2 = ''}
+    Buttons[6] = {x = 750, y = 460, w = 40, h = 25, t = 'calcul', s1 = '', s2 = ''}
     --* Load center text doesn't need refresh
     Scenter["1"] = {x = TextZone[0].x + 5, y = TextZone[0].y + (TextZone[0].h - font:getHeight(TextZone[0].t)) / 2}
     Scenter["2"] = {x = Buttons[2].x + (Buttons[2].w - font:getWidth(Buttons[2].t)) / 2 - C2.x, y = Buttons[2].y + (Buttons[2].h - font:getHeight(Buttons[2].t)) / 2 - C2.y}
     Scenter["3"] = {x = Buttons[3].x + (Buttons[3].w - font:getWidth(Buttons[3].t)) / 2 - C2.x, y = Buttons[3].y + (Buttons[3].h - font:getHeight(Buttons[3].t)) / 2 - C2.y}
     Scenter["4"] = {x = Buttons[4].x + (Buttons[4].w - font:getWidth(Buttons[4].t)) / 2 - C2.x, y = Buttons[4].y + (Buttons[4].h - font:getHeight(Buttons[4].t)) / 2 - C2.y}
     Scenter["5"] = {x = Buttons[5].x + (Buttons[5].w - font:getWidth(Buttons[5].t)) / 2 - C2.x, y = Buttons[5].y + (Buttons[5].h - font:getHeight(Buttons[5].t)) / 2 - C2.y}
-
 
     --TODO setcanvas
     love.graphics.setCanvas(ClistMol)
@@ -132,6 +132,7 @@ function love.draw()
         --TODO Draw TextZone 0 Text
         love.graphics.print(TextZone[0].t, Scenter["1"].x, Scenter["1"].y)
     end
+
     love.graphics.rectangle("line", Buttons[1].x, Buttons[1].y, Buttons[1].w, Buttons[1].h)
     if Buttons[1].t ~= '' then
         --TODO Draw Buttons 1 Text
@@ -139,6 +140,15 @@ function love.draw()
         x = Buttons[1].x + (Buttons[1].w - font:getWidth(Buttons[1].t)) / 2
         y = Buttons[1].y + (Buttons[1].h - font:getHeight(Buttons[1].t)) / 2
         love.graphics.print(Buttons[1].t, x, y)
+    end
+
+    love.graphics.rectangle("line", Buttons[6].x, Buttons[6].y, Buttons[6].w, Buttons[6].h)
+    if Buttons[6].t ~= '' then
+        --TODO Draw Buttons 1 Text
+        local x, y
+        x = Buttons[6].x + (Buttons[6].w - font:getWidth(Buttons[6].t)) / 2
+        y = Buttons[6].y + (Buttons[6].h - font:getHeight(Buttons[6].t)) / 2
+        love.graphics.print(Buttons[6].t, x, y)
     end
     --TODO Draw canvas Mol
     love.graphics.draw(ClistMol, C1.x, C1.y)
@@ -175,6 +185,9 @@ function love.mousepressed()
             end
             break
         end
+    end
+    if mouse.x >= Buttons[6].x and mouse.x <= Buttons[6].x + Buttons[6].w and mouse.y >= Buttons[6].y and mouse.y <= Buttons[6].y + Buttons[6].h then
+        --TODO calcul
     end
     if scene[1] == 'input' then
         --TODO create Mol with Brut
