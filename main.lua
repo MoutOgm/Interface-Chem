@@ -242,7 +242,7 @@ function love.mousepressed()
         --TODO create Mol with Brut
         if mouse.x >= Buttons[1].x and mouse.x <= Buttons[1].x + Buttons[1].w and mouse.y >= Buttons[1].y and mouse.y <= Buttons[1].y + Buttons[1].h then
             if TextZone[0].t ~= '' and scene[2] ~= nil then
-                table.insert(Mol, {molecule:new()})
+                table.insert(Mol, molecule:new())
                 Mol[#Mol].brut = TextZone[0].t
                 Donnes[#Donnes+1] = {}
                 --[[
@@ -285,6 +285,9 @@ function love.mousepressed()
         if mouse.x >= Buttons[2].x and mouse.x <= Buttons[2].x + Buttons[2].w and mouse.y >= Buttons[2].y and mouse.y <= Buttons[2].y + Buttons[2].h then
             --TODO register donnes
             --enregistrer
+
+            Mol[scene[2]]:register(Donnes[scene[2]])
+
             --* reset scene
             scene[3] = nil
             scene[2] = nil
