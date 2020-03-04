@@ -286,8 +286,8 @@ function love.mousepressed()
             --TODO register donnes
             --enregistrer
 
-            Mol[scene[2]]:register(Donnes[scene[2]])
-
+            molecule.register(Mol[scene[2]], Donnes[scene[2]])
+            print(Mol[scene[2]].donnes.number)
             --* reset scene
             scene[3] = nil
             scene[2] = nil

@@ -80,6 +80,46 @@ function m.register(self, Donnes)
     end
 end
 function m.new(self)
-    return self
+    return {
+    ---Name molecule brut
+    ---@type brut
+    brut = nil,
+    ---'+ , - , ~' int
+    ---@type tableSI
+    positive = nil,
+    ---nb molecule
+    ---@type int
+    nbmol = nil,
+    ---masse molaire
+    ---@type gmol1
+    mmol = nil,
+    ---volume solution
+    ---@type L
+    vol = nil,
+    ---mol
+    ---@type mol
+    n = nil,
+    ---concentration
+    ---@type molL1
+    conc = nil,
+    ---type de la reaction
+    ---@type tableS
+    typ = {},
+    ---masse
+    ---@type g
+    masse = nil,
+    ---ks
+    ---@type int
+    ks = nil,
+    ---donne + typedonne
+    ---@type tableSD
+    donnes = {number = 0},
+    ---nb atom
+    ---@type tableS
+    atom = nil,
+    ---nb liaison
+    ---@type tableSI
+    liaison = nil,
+}
 end
 return m
