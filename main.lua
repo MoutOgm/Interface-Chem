@@ -1,5 +1,7 @@
-local fonc = require('function')
-local const = require('const')
+--local fonc = require('function')
+--local const = require('const')
+--local utils = require('utils')
+local SI = require('stringInfo')
 local molecule = require('molecule')
 local scene = {'select', nil, nil} --* scene input/select, index Mol, index Donnes
 local mouse = {x = nil, y = nil} --* pos mouse
@@ -10,7 +12,7 @@ local Buttons = {} --* liste des bouttons
 local TypeDo = {}
 local ClistMol = love.graphics.newCanvas(160, 450) --* canvas molecules
 local ClistDonne = love.graphics.newCanvas(475, 450) --* canvas Donnes
-local ClistType = love.graphics.newCanvas(130, 200)
+local ClistType = love.graphics.newCanvas(130, 250)
 local C1 = { x = 10, y = 70 } --* pos canvas Mol
 local C2 = { x = 170, y = 70 } --* pos canvas Donnes
 local C3 = { x = 500, y = 115, draw = nil}
@@ -18,22 +20,26 @@ local Scenter = {} --* liste center text buttons / textzone (doesn't need refres
 local font = love.graphics.newFont(16) --* load a font
 function love.load()
     --* Load TextZone et Buttons
-    TextZone[0] = {x = 10, y = 10, w = 500, h = 25, t = '', s1 = '', s2 = ''}
-    Buttons[1] = {x = 550, y = 10, w = 25, h = 25, t = "+", s1 = '', s2 = ''}
-    Buttons[2] = {x = 550, y = 475, w = 50, h = 25, t = "save", s1 = 'select', s2 = ''}
-    Buttons[3] = {x = 550, y = 440, w = 50, h = 25, t = 'supp', s1 = 'select', s2 = ''}
-    Buttons[4] = {x = 580, y = 80, w = 25, h = 25, t = '+', s1 = 'select', s2 = ''}
-    Buttons[5] = {x = 610, y = 80, w = 25, h = 25, t = '-', s1 = 'select', s2 = ''}
-    Buttons[6] = {x = 720, y = 550, w = 60, h = 25, t = 'calcul', s1 = '', s2 = ''}
+    local height = 25
+    TextZone[0] = {x = 10, y = 10, w = 500, h = height, t = '', s1 = '', s2 = ''}
+    Buttons[1] = {x = 550, y = 10, w = 25, h = height, t = "+", s1 = '', s2 = ''}
+    Buttons[2] = {x = 550, y = 475, w = 50, h = height, t = "save", s1 = 'select', s2 = ''}
+    Buttons[3] = {x = 550, y = 440, w = 50, h = height, t = 'supp', s1 = 'select', s2 = ''}
+    Buttons[4] = {x = 580, y = 80, w = 25, h = height, t = '+', s1 = 'select', s2 = ''}
+    Buttons[5] = {x = 610, y = 80, w = 25, h = height, t = '-', s1 = 'select', s2 = ''}
+    Buttons[6] = {x = 720, y = 550, w = 60, h = height, t = 'calcul', s1 = '', s2 = ''}
     --* Load TypeDo
-    TypeDo[1] = {x = 0, y = 0, w = ClistType:getWidth(), h = 25, t = "Masse Mol"}
-    TypeDo[2] = {x = 0, y = 25, w = ClistType:getWidth(), h = 25, t = "Mol"}
-    TypeDo[3] = {x = 0, y = 50, w = ClistType:getWidth(), h = 25, t = "Masse"}
-    TypeDo[4] = {x = 0, y = 75, w = ClistType:getWidth(), h = 25, t = "Concentration"}
-    TypeDo[5] = {x = 0, y = 100, w = ClistType:getWidth(), h = 25, t = "Volume"}
-    TypeDo[6] = {x = 0, y = 125, w = ClistType:getWidth(), h = 25, t = "Type"}
-    TypeDo[7] = {x = 0, y = 150, w = ClistType:getWidth(), h = 25, t = "Ks"}
-    TypeDo[8] = {x = 0, y = 175, w = ClistType:getWidth(), h = 25, t = "Positif"}
+    local widthtype = ClistType:getWidth()
+    TypeDo[1] = {x = 0, y = 0, w = widthtype, h = height, t = "Masse Mol"}
+    TypeDo[2] = {x = 0, y = 25, w = widthtype, h = height, t = "Mol"}
+    TypeDo[3] = {x = 0, y = 50, w = widthtype, h = height, t = "Masse"}
+    TypeDo[4] = {x = 0, y = 75, w = widthtype, h = height, t = "Concentration"}
+    TypeDo[5] = {x = 0, y = 100, w = widthtype, h = height, t = "Volume"}
+    TypeDo[6] = {x = 0, y = 125, w = widthtype, h = height, t = "Type"}
+    TypeDo[7] = {x = 0, y = 150, w = widthtype, h = height, t = "Ks"}
+    TypeDo[8] = {x = 0, y = 175, w = widthtype, h = height, t = "Positif"}
+    TypeDo[9] = {x = 0, y = 200, w = widthtype, h = height, t = "liaison2"}
+    TypeDo[10] = {x = 0, y = 225, w = widthtype, h = height, t = "liaison3"}
     --* Load center text doesn't need refresh
     Scenter["1"] = {x = TextZone[0].x + 5, y = TextZone[0].y + (TextZone[0].h - font:getHeight(TextZone[0].t)) / 2}
     Scenter["2"] = {x = Buttons[2].x + (Buttons[2].w - font:getWidth(Buttons[2].t)) / 2 - C2.x, y = Buttons[2].y + (Buttons[2].h - font:getHeight(Buttons[2].t)) / 2 - C2.y}
@@ -235,9 +241,6 @@ function love.mousepressed()
             end
         end
     end
-    if mouse.x >= Buttons[6].x and mouse.x <= Buttons[6].x + Buttons[6].w and mouse.y >= Buttons[6].y and mouse.y <= Buttons[6].y + Buttons[6].h then
-        --TODO calcul
-    end
     if scene[1] == 'input' then
         --TODO create Mol with Brut
         if mouse.x >= Buttons[1].x and mouse.x <= Buttons[1].x + Buttons[1].w and mouse.y >= Buttons[1].y and mouse.y <= Buttons[1].y + Buttons[1].h then
@@ -279,15 +282,12 @@ function love.mousepressed()
                 break
             end
         end
-        if C3.draw ~= nil then
-
-        end
         if mouse.x >= Buttons[2].x and mouse.x <= Buttons[2].x + Buttons[2].w and mouse.y >= Buttons[2].y and mouse.y <= Buttons[2].y + Buttons[2].h then
             --TODO register donnes
             --enregistrer
 
             molecule.register(Mol[scene[2]], Donnes[scene[2]])
-            print(Mol[scene[2]].donnes.number)
+
             --* reset scene
             scene[3] = nil
             scene[2] = nil
@@ -339,22 +339,43 @@ function love.mousepressed()
             end
         end
     end
+    if mouse.x >= Buttons[6].x and mouse.x <= Buttons[6].x + Buttons[6].w and mouse.y >= Buttons[6].y and mouse.y <= Buttons[6].y + Buttons[6].h then
+        --TODO calcul
+        local utils = require('utils')
+        local const = require('const')
+        local toFile = io.open("Finish.txt", "w+")
+        local reactions = {}
+        -- for initilisateur
+        for i = 1, #Mol do
+            if Mol[i].nbmol == nil and not SI.isNum(Mol[i].brut:sub(1, 1)) then
+                molecule.getNum(Mol[i])
+            end
+            molecule.getAtom(Mol[i])
+            molecule.getMasseMol(Mol[i])
+            Mol[i].exist = molecule.exist(Mol[i])
+            molecule.getReact(Mol[i], reactions)
+        end
+        local reactWork = molecule.reaction(reactions)
+        --cv
+        toFile:close()
+    end
 end
 function love.wheelmoved(dx, dy)
     if mouse.x >= C1.x and mouse.x <= C1.x + ClistMol:getWidth() and mouse.y >= C1.y and mouse.y <= C1.y + ClistMol:getHeight() then
         --TODO change diff y de TextZones
         for i = 1, #TextZone do
-            TextZone[i].dy = TextZone[i].dy - dy * 3
+            TextZone[i].dy = TextZone[i].dy - dy * 5
         end
     elseif mouse.x >= C2.x and mouse.x <= C2.x + ClistDonne:getWidth() and mouse.y >= C2.y and mouse.y <= C2.y + ClistDonne:getHeight() then
         --TODO change diff y de Donnes
         if scene[2] ~= nil then
             for i = 1, #Donnes[scene[2]] do
-                Donnes[scene[2]][i].dy = Donnes[scene[2]][i].dy - dy * 3
+                Donnes[scene[2]][i].dy = Donnes[scene[2]][i].dy - dy * 5
             end
         end
     end
 end
+
 function love.textinput(text)
     if scene[2] ~= nil then
         --TODO add Text in TextZone
