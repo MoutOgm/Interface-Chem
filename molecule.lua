@@ -1,35 +1,65 @@
 local SI = require('stringInfo')
 local const = require('const')
 local utils = require('utils')
+local cal = require('function')
 ---@type mainClass
 local m = {}
-function m.getReact(mol, r)
-    local k = utils.search(mol, "reaction")
-    if k then
-        local num = tonumber(mol.typ[k])
-        if not r[num] then
-            r[num] = {}
+---
+function m.tabAdvance(reaction)
+    for i in ipairs(reaction) do
+        for k in pairs(reaction[i]) do
         end
-        table.insert(r[num],mol)
     end
 end
-function m.reaction(react)
-    local reaction = {}
-    local somme = {}
-    for i = 1, #react do
-        reaction[i] = {reactifs = {}, produits = {}}
-        somme[i] = {reactifs = {}, produits = {}}
-        for k = 1, #react[i] do
-            local j = utils.search(react[i][k], "reactif")
+---
+function m.CV(melange)
+    local vtot = 0
+    for i in ipairs(melange) do
+        local k, j = utils.search(melange[i], "Concentration"), utils.search(melange[i], "Volume")
+        if k and j then
+            vtot = vtot + melange[i].vol
+        else
+            return "Error"
+        end
+    end
+    for i in ipairs(melange) do
+        melange[i].conc = cal.conccv(melange[i].conc, melange[i].vol, vtot)
+    end
+    return "Work"
+end
+---
+function m.getMelange(mol, m)
+    local k = utils.search(mol, "melange")
+    if k then
+        if not m[mol.typ["melange"]] then
+            m[mol.typ["melange"]] = {}
+        end
+        table.insert(m[mol.typ["melange"]], mol)
+    end
+end
+---
+function m.getReact(mol, r)
+    local k = utils.searchtype(mol, "reaction")
+    local j = utils.searchtype(mol, "reactif")
+    if k then
+        if not r[mol.typ["reaction"]] then
+            r[mol.typ["reaction"]] = {reactifs = {}, produits = {}}
+        end
+        if j then
+            table.insert(r[mol.typ["reaction"]].reactifs, mol)
+        else
+            j = utils.search(mol, "produit")
             if j then
-                table.insert(reaction[i].reactifs, react[i][k])
-            else
-                j = utils.search(react[i][k], "produit")
-                if j then
-                    table.insert(reaction[i].produits, react[i][k])
-                end
+                table.insert(r[mol.typ["reaction"]].produits, mol)
             end
         end
+    end
+end
+---
+function m.reaction(reaction)
+    local somme = {}
+    for i = 1, #reaction do
+        somme[i] = {reactifs = {}, produits = {}}
     end
     for i in ipairs(reaction) do
         for k in pairs(reaction[i]) do
@@ -43,11 +73,11 @@ function m.reaction(react)
         end
     end
     local boolReact = {}
-    for i in ipairs(reaction) do
+    for i in ipairs(somme) do
         boolReact[i] = true
-        for j, v in pairs(reaction[i].reactifs) do
-            if reaction[i].produits[j] then
-                if v ~= reaction[i].produits[j] then
+        for j, v in pairs(somme[i].reactifs) do
+            if somme[i].produits[j] then
+                if v ~= somme[i].produits[j] then
                     boolReact[i] = false
                 end
             else
@@ -57,6 +87,7 @@ function m.reaction(react)
     end
     return boolReact
 end
+---
 function m.exist(mol)
     local liaisons = 0
     local atoms = 0
@@ -71,12 +102,14 @@ function m.exist(mol)
         return false
     end
 end
+---
 function m.getMasseMol(mol)
     mol.mmol = 0
     for k, v in pairs(mol.atom) do
         mol.mmol = mol.mmol + (const.ATOM[k][1] * v)
     end
 end
+---
 function m.getAtom(mol)
     for k, v in pairs(mol.atom) do
         mol.atom[k] = 0
@@ -112,7 +145,7 @@ function m.getAtom(mol)
         i = k + 1
     end
 end
-
+---
 function m.getNum(mol)
     local s = mol.brut
     local haveNum = true
@@ -129,6 +162,7 @@ function m.getNum(mol)
         mol.brut = mol.brut:sub(s:len() + 1) --* enlever le nb de mol
     end
 end
+---
 function m.register(self, Donnes)
     self.liaison.double = 0
     self.liaison.triple = 0
@@ -160,7 +194,7 @@ function m.register(self, Donnes)
                 for word in Donnes[i].t:gmatch("%w+") do table.insert(words, word) end
                 self.donnes[#self.donnes+1] = words[1]
                 if (words[1] == "reaction" or words[1] == "melange") then
-                    self.typ[#self.typ+1] = words[2]
+                    self.typ[words[1]] = tonumber(words[2])
                 else
                     self.typ[#self.typ+1] = Donnes[i].t
                 end
@@ -183,7 +217,7 @@ function m.register(self, Donnes)
         end
     end
 end
-
+---
 function m.new(self)
     return {
     ---Name molecule brut

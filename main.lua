@@ -1,25 +1,41 @@
---local fonc = require('function')
+local fonc = require('function')
 --local const = require('const')
 --local utils = require('utils')
 local SI = require('stringInfo')
 local molecule = require('molecule')
+--- liste des scenes
 local scene = {'select', nil, nil} --* scene input/select, index Mol, index Donnes
+--- position mouse
 local mouse = {x = nil, y = nil} --* pos mouse
+--- liste molecules
 local Mol = {} --* liste des molecules
+--- liste zone entrer de texte
 local TextZone = {} --* liste de zone de text pour molecule
-local Donnes = {} --* liste de textzone mais specialement pour les donners
+--- liste zone entrer de donnes
+local Donnes = {} --* liste de textzone mais specialement pour les donnes
+--- liste des buttons
 local Buttons = {} --* liste des bouttons
+--- liste text de typedonne
 local TypeDo = {}
+--- canvas liste molecule
 local ClistMol = love.graphics.newCanvas(160, 450) --* canvas molecules
+--- canvas liste donne
 local ClistDonne = love.graphics.newCanvas(475, 450) --* canvas Donnes
-local ClistType = love.graphics.newCanvas(130, 250)
+--- canvas liste type donne
+local ClistType = love.graphics.newCanvas(130, 225)
+--- position canvas 1
 local C1 = { x = 10, y = 70 } --* pos canvas Mol
+--- position canvas 2
 local C2 = { x = 170, y = 70 } --* pos canvas Donnes
+--- position canvas 3
 local C3 = { x = 500, y = 115, draw = nil}
+--- liste des texts centrer
 local Scenter = {} --* liste center text buttons / textzone (doesn't need refresh)
+--- font affichage
 local font = love.graphics.newFont(16) --* load a font
 function love.load()
     --* Load TextZone et Buttons
+    --- largeur des cases
     local height = 25
     TextZone[0] = {x = 10, y = 10, w = 500, h = height, t = '', s1 = '', s2 = ''}
     Buttons[1] = {x = 550, y = 10, w = 25, h = height, t = "+", s1 = '', s2 = ''}
@@ -30,16 +46,15 @@ function love.load()
     Buttons[6] = {x = 720, y = 550, w = 60, h = height, t = 'calcul', s1 = '', s2 = ''}
     --* Load TypeDo
     local widthtype = ClistType:getWidth()
-    TypeDo[1] = {x = 0, y = 0, w = widthtype, h = height, t = "Masse Mol"}
-    TypeDo[2] = {x = 0, y = 25, w = widthtype, h = height, t = "Mol"}
-    TypeDo[3] = {x = 0, y = 50, w = widthtype, h = height, t = "Masse"}
-    TypeDo[4] = {x = 0, y = 75, w = widthtype, h = height, t = "Concentration"}
-    TypeDo[5] = {x = 0, y = 100, w = widthtype, h = height, t = "Volume"}
-    TypeDo[6] = {x = 0, y = 125, w = widthtype, h = height, t = "Type"}
-    TypeDo[7] = {x = 0, y = 150, w = widthtype, h = height, t = "Ks"}
-    TypeDo[8] = {x = 0, y = 175, w = widthtype, h = height, t = "Positif"}
-    TypeDo[9] = {x = 0, y = 200, w = widthtype, h = height, t = "liaison2"}
-    TypeDo[10] = {x = 0, y = 225, w = widthtype, h = height, t = "liaison3"}
+    TypeDo[1] = {x = 0, y = 0, w = widthtype, h = height, t = "Mol"}
+    TypeDo[2] = {x = 0, y = 25, w = widthtype, h = height, t = "Masse"}
+    TypeDo[3] = {x = 0, y = 50, w = widthtype, h = height, t = "Concentration"}
+    TypeDo[4] = {x = 0, y = 75, w = widthtype, h = height, t = "Volume"}
+    TypeDo[5] = {x = 0, y = 100, w = widthtype, h = height, t = "Type"}
+    TypeDo[6] = {x = 0, y = 125, w = widthtype, h = height, t = "Ks"}
+    TypeDo[7] = {x = 0, y = 150, w = widthtype, h = height, t = "Positif"}
+    TypeDo[8] = {x = 0, y = 175, w = widthtype, h = height, t = "liaison2"}
+    TypeDo[9] = {x = 0, y = 200, w = widthtype, h = height, t = "liaison3"}
     --* Load center text doesn't need refresh
     Scenter["1"] = {x = TextZone[0].x + 5, y = TextZone[0].y + (TextZone[0].h - font:getHeight(TextZone[0].t)) / 2}
     Scenter["2"] = {x = Buttons[2].x + (Buttons[2].w - font:getWidth(Buttons[2].t)) / 2 - C2.x, y = Buttons[2].y + (Buttons[2].h - font:getHeight(Buttons[2].t)) / 2 - C2.y}
@@ -106,6 +121,7 @@ function love.update(dt)
                 love.mouse.setCursor(love.mouse.getSystemCursor("hand"))
             end
         end
+        --* change ce quil y a dans le canvas
         love.graphics.setCanvas(ClistDonne)
             love.graphics.clear()
 
@@ -343,24 +359,98 @@ function love.mousepressed()
         --TODO calcul
         local utils = require('utils')
         local const = require('const')
+        --- fichier decriture resultats finaux
         local toFile = io.open("Finish.txt", "w+")
+        --- conteneur molecule de chaque reaction
         local reactions = {}
+        --- conteneur molecule de chaque melange
+        local melanges = {}
+        --- conteneur erreur sur un calcul de melange
+        local errM = {}
+        --- conteneur erreur sur un calcul T.A.
+        local errR = {}
         -- for initilisateur
         for i = 1, #Mol do
+            -- if molecules number's changed
             if Mol[i].nbmol == nil and not SI.isNum(Mol[i].brut:sub(1, 1)) then
+                --* get number of molecules
                 molecule.getNum(Mol[i])
             end
+            --* get atoms of molecules
             molecule.getAtom(Mol[i])
+            --* get M of molecules
             molecule.getMasseMol(Mol[i])
+            --* get if molecule exist
             Mol[i].exist = molecule.exist(Mol[i])
+            --* get number of the reaction
             molecule.getReact(Mol[i], reactions)
+            --* get number of the melange
+            molecule.getMelange(Mol[i], melanges)
         end
+        --- list of reaction work or not
         local reactWork = molecule.reaction(reactions)
-        --cv
+        --
+        for i in ipairs(melanges) do
+            errM[i] = molecule.CV(melanges[i])
+        end
+        --
+        for i in ipairs(reactions) do
+            if reactWork[i] == "Work" then
+                errR[i] = molecule.tabAdvance(reactions[i])
+            end
+        end
+        for k = 0, 1 do
+            for i in ipairs(Mol) do
+                if Mol[i].masse then
+                    if Mol[i].mmol then
+                        Mol[i].n = fonc.calnmasse(Mol[i].masse, Mol[i].mmol)
+                        Mol[i].donnes.number = Mol[i].donnes.number + 1
+                        Mol[i].donnes[#Mol[i].donnes+1] = "Mol"
+                    end
+                end
+                if Mol[i].n then
+                    if Mol[i].mmol then
+                        Mol[i].masse = fonc.masse(Mol[i].n, Mol[i].mmol)
+                        Mol[i].donnes.number = Mol[i].donnes.number + 1
+                        Mol[i].donnes[#Mol[i].donnes+1] = "Masse"
+                    end
+                    if Mol[i].vol then
+                        Mol[i].conc = fonc.conc(Mol[i].n, Mol[i].vol)
+                        Mol[i].donnes.number = Mol[i].donnes.number + 1
+                        Mol[i].donnes[#Mol[i].donnes+1] = "Concentration"
+                    end
+                end
+                if Mol[i].conc then
+                    if Mol[i].vol then
+                        Mol[i].n = fonc.calnconc(Mol[i].conc, Mol[i].vol)
+                        Mol[i].donnes.number = Mol[i].donnes.number + 1
+                        Mol[i].donnes[#Mol[i].donnes+1] = "Mol"
+                    elseif Mol[i].n then
+                        Mol[i].vol = fonc.volconc(Mol[i].n, Mol[i].conc)
+                        Mol[i].donnes.number = Mol[i].donnes.number + 1
+                        Mol[i].donnes[#Mol[i].donnes+1] = "Volume"
+                    end
+                end
+            end
+        end
+        -- melanges if errM == "error"
+        -- reactions if errR == "error"
+        --tableau(reactions, reactWork)
+        for i in ipairs(Mol) do
+            --[[
+            toFile:write(Mol[i].brut.." >>>\n")
+            toFile:write("  M : "..Mol[i].mmol.." g/mol\n")
+            toFile:write("  Mol : "..Mol[i].n.." mol\n")
+            toFile:write("  Masse : "..Mol[i].masse.." g\n")
+            toFile:write("  Concentration : "..Mol[i].conc.." mol/L\n")
+            toFile:write("  Volume : "..Mol[i].vol.." L\n")
+            ]]
+        end
         toFile:close()
     end
 end
 function love.wheelmoved(dx, dy)
+    -- if mouse is in canvas
     if mouse.x >= C1.x and mouse.x <= C1.x + ClistMol:getWidth() and mouse.y >= C1.y and mouse.y <= C1.y + ClistMol:getHeight() then
         --TODO change diff y de TextZones
         for i = 1, #TextZone do
