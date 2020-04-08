@@ -13,7 +13,6 @@
 --[[
     tableSI = [string] = int
     tableS = {string, string, string}
-    tableSD = [string] = donne
 ]]
 ---@var :
 --[[

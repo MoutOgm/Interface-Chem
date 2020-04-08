@@ -13,23 +13,23 @@ function m.tabAdvance(reaction)
 end
 ---
 function m.CV(melange)
-    local vtot = 0
+    local vtot = {}
     for i in ipairs(melange) do
-        local k, j = utils.search(melange[i], "Concentration"), utils.search(melange[i], "Volume")
-        if k and j then
-            vtot = vtot + melange[i].vol
+        vtot[i] = 0
+        if melange[i].conc and melange[i].vol then
+            vtot[i] = vtot[i] + melange[i].vol
         else
             return "Error"
         end
     end
     for i in ipairs(melange) do
-        melange[i].conc = cal.conccv(melange[i].conc, melange[i].vol, vtot)
+        melange[i].conc = cal.conccv(melange[i].conc, melange[i].vol, vtot[i])
     end
     return "Work"
 end
 ---
 function m.getMelange(mol, m)
-    local k = utils.search(mol, "melange")
+    local k = utils.searchtype(mol, "melange")
     if k then
         if not m[mol.typ["melange"]] then
             m[mol.typ["melange"]] = {}
@@ -48,7 +48,7 @@ function m.getReact(mol, r)
         if j then
             table.insert(r[mol.typ["reaction"]].reactifs, mol)
         else
-            j = utils.search(mol, "produit")
+            j = utils.searchtype(mol, "produit")
             if j then
                 table.insert(r[mol.typ["reaction"]].produits, mol)
             end
@@ -168,50 +168,39 @@ function m.register(self, Donnes)
     self.liaison.triple = 0
     for i = 1, #Donnes do
         if Donnes[i].typeDonne.t ~= 'null' then
-            self.donnes.number = self.donnes.number + 1
             if Donnes[i].typeDonne.t == 'Concentration' then
-                self.donnes[#self.donnes+1] = 'Concentration'
                 self.conc = tonumber(Donnes[i].t)
 
             elseif Donnes[i].typeDonne.t == 'Masse Mol' then
-                self.donnes[#self.donnes+1] = 'Masse Mol'
                 self.mmol = tonumber(Donnes[i].t)
 
             elseif Donnes[i].typeDonne.t == 'Mol' then
-                self.donnes[#self.donnes+1] = 'Mol'
                 self.n = tonumber(Donnes[i].t)
 
             elseif Donnes[i].typeDonne.t == 'Masse' then
-                self.donnes[#self.donnes+1] = 'Masse'
                 self.masse = tonumber(Donnes[i].t)
 
             elseif Donnes[i].typeDonne.t == 'Volume' then
-                self.donnes[#self.donnes+1] = 'Volume'
                 self.vol = tonumber(Donnes[i].t)
 
             elseif Donnes[i].typeDonne.t == 'Type' then
                 local words = {}
                 for word in Donnes[i].t:gmatch("%w+") do table.insert(words, word) end
-                self.donnes[#self.donnes+1] = words[1]
                 if (words[1] == "reaction" or words[1] == "melange") then
                     self.typ[words[1]] = tonumber(words[2])
                 else
                     self.typ[Donnes[i].t] = Donnes[i].t
                 end
             elseif Donnes[i].typeDonne.t == 'Ks' then
-                self.donnes[#self.donnes+1] = 'Ks'
                 self.ks = tonumber(Donnes[i].t)
 
             elseif Donnes[i].typeDonne.t == 'Positif' then
-                self.donnes[#self.donnes+1] = 'Positif'
                 self.positive = {n = nil, t = nil}  --a faire
 
             elseif Donnes[i].typeDonne.t == 'liaison2' then
-                self.donnes[#self.donnes+1] = 'Positif'
                 self.liaison.double = tonumber(Donnes[i].t)
 
             elseif Donnes[i].typeDonne.t == 'liaison3' then
-                self.donnes[#self.donnes+1] = 'Positif'
                 self.liaison.triple = tonumber(Donnes[i].t)
             end
         end
@@ -250,9 +239,6 @@ function m.new(self)
     ---ks
     ---@type int
     ks = nil,
-    ---donne + typedonne
-    ---@type tableSD
-    donnes = {number = 0},
     ---nb atom
     ---@type tableS
     atom = {},

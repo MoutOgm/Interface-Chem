@@ -404,31 +404,21 @@ function love.mousepressed()
                 if Mol[i].masse then
                     if Mol[i].mmol then
                         Mol[i].n = fonc.calnmasse(Mol[i].masse, Mol[i].mmol)
-                        Mol[i].donnes.number = Mol[i].donnes.number + 1
-                        Mol[i].donnes[#Mol[i].donnes+1] = "Mol"
                     end
                 end
                 if Mol[i].n then
                     if Mol[i].mmol then
                         Mol[i].masse = fonc.masse(Mol[i].n, Mol[i].mmol)
-                        Mol[i].donnes.number = Mol[i].donnes.number + 1
-                        Mol[i].donnes[#Mol[i].donnes+1] = "Masse"
                     end
                     if Mol[i].vol then
                         Mol[i].conc = fonc.conc(Mol[i].n, Mol[i].vol)
-                        Mol[i].donnes.number = Mol[i].donnes.number + 1
-                        Mol[i].donnes[#Mol[i].donnes+1] = "Concentration"
                     end
                 end
                 if Mol[i].conc then
                     if Mol[i].vol then
                         Mol[i].n = fonc.calnconc(Mol[i].conc, Mol[i].vol)
-                        Mol[i].donnes.number = Mol[i].donnes.number + 1
-                        Mol[i].donnes[#Mol[i].donnes+1] = "Mol"
                     elseif Mol[i].n then
                         Mol[i].vol = fonc.volconc(Mol[i].n, Mol[i].conc)
-                        Mol[i].donnes.number = Mol[i].donnes.number + 1
-                        Mol[i].donnes[#Mol[i].donnes+1] = "Volume"
                     end
                 end
             end

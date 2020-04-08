@@ -13,12 +13,4 @@ function m.searchtype(mol, type)
     end
     return nil
 end
-function m.search(mol, type)
-    for i = 0, #mol.donnes do
-        if type == mol.donnes[i] then
-            return i
-        end
-    end
-    return nil
-end
 return m
