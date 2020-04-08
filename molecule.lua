@@ -20,7 +20,7 @@ function m.CV(melange)
             vtot[i] = vtot[i] + melange[i].vol
         else
             return "Error"
-        end
+        end 
     end
     for i in ipairs(melange) do
         melange[i].conc = cal.conccv(melange[i].conc, melange[i].vol, vtot[i])
@@ -160,6 +160,38 @@ function m.getNum(mol)
     if haveNum then
         mol.nbmol = tonumber(s)
         mol.brut = mol.brut:sub(s:len() + 1) --* enlever le nb de mol
+    end
+end
+---
+function m.removeD(self, Donnes, k)
+    if Donnes[k].typeDonne.t ~= 'null' then
+        if Donnes[k].typeDonne.t == 'Concentration' then
+            self.conc = nil
+        elseif Donnes[k].typeDonne.t == 'Masse Mol' then
+            self.mmol = nil
+        elseif Donnes[k].typeDonne.t == 'Mol' then
+            self.mol = nil
+        elseif Donnes[k].typeDonne.t == 'Masse' then
+            self.masse = nil
+        elseif Donnes[k].typeDonne.t == 'Volume' then
+            self.vol = nil
+        elseif Donnes[k].typeDonne.t == 'Type' then
+            local words = {}
+            for word in Donnes[k].t:gmatch("%w+") do table.insert(words, word) end
+            if (words[1] == "reaction" or words[1] == "melange") then
+                self.typ[words[1]] = nil
+            else
+                self.typ[Donnes[k].t] = nil
+            end
+        elseif Donnes[k].typeDonne.t == 'Ks' then
+            self.ks = nil
+        elseif Donnes[k].typeDonne.t == 'Positif' then
+            self.positive = nil
+        elseif Donnes[k].typeDonne.t == 'liaison2' then
+            self.liaison.double = 0
+        elseif Donnes[k].typeDonne.t == 'liaison3' then
+            self.liaison.double = 0
+        end
     end
 end
 ---

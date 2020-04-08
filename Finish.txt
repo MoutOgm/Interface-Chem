@@ -1,6 +1,0 @@
-C1H4 >>>
-  M : 16
-  Mol : 1
-  Masse : 16
-  Concentration : 0.5
-  Volume : 2

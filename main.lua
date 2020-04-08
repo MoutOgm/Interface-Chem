@@ -346,7 +346,8 @@ function love.mousepressed()
                 for i = scene[3], #Donnes[scene[2]] do
                     Donnes[scene[2]][i].s3 = Donnes[scene[2]][i].s3 -1
                 end
-                --typedonne supp de la mol
+                --* typedonne supp de la mol
+                molecule.removeD(Mol[scene[2]], Donnes[scene[2]], scene[3])
                 --* remove table
                 table.remove(Donnes[scene[2]], scene[3])
                 --* reset scene
