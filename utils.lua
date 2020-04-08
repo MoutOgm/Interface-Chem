@@ -5,12 +5,6 @@ end
 function m.write(file, text)
     file:write(text)
 end
-function m.getReact(Lmol, num)
-    local t = {}
-    for k, v in pairs(Lmol) do
-
-    end
-end
 function m.searchtype(mol, type)
     for i in ipairs(mol.typ) do
         if type == mol.typ[i] then

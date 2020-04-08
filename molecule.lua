@@ -196,7 +196,7 @@ function m.register(self, Donnes)
                 if (words[1] == "reaction" or words[1] == "melange") then
                     self.typ[words[1]] = tonumber(words[2])
                 else
-                    self.typ[#self.typ+1] = Donnes[i].t
+                    self.typ[Donnes[i].t] = Donnes[i].t
                 end
             elseif Donnes[i].typeDonne.t == 'Ks' then
                 self.donnes[#self.donnes+1] = 'Ks'
