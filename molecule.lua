@@ -10,6 +10,7 @@ function m.tabAdvance(reaction)
         for k in pairs(reaction[i]) do
         end
     end
+    return "Work"
 end
 ---
 function m.CV(melange)
@@ -20,7 +21,7 @@ function m.CV(melange)
             vtot[i] = vtot[i] + melange[i].vol
         else
             return "Error"
-        end 
+        end
     end
     for i in ipairs(melange) do
         melange[i].conc = cal.conccv(melange[i].conc, melange[i].vol, vtot[i])
@@ -237,6 +238,67 @@ function m.register(self, Donnes)
             end
         end
     end
+end
+---
+function m:getHeader(JsonHeader)
+    self.Header = {}
+    for k in pairs(JsonHeader) do
+        if k ~= "A" then
+            self.Header[k] = JsonHeader[k]
+        end
+    end
+end
+---
+function m:register_from_json(mol, tablejson, D, s2)
+    --create new mol
+    --add donnes
+    mol.brut = tablejson["A"]
+    for k in pairs(self.Header) do
+        local header = self.Header[k]
+        local result = tablejson[k]
+
+        if header ~= "Nb Mol" and result ~= nil then --and is in list (conc etc)
+            if #D[s2] ~= 0 then
+                --* take les refs du dernier
+                local dT = D[s2][#D[s2]]
+                D[s2][#D[s2] + 1] = {x = dT.x, y = dT.y, w = dT.w, h = dT.h, t = '', s1 = '', s2 = dT.s2, s3 = dT.s3 + 1, dy = dT.dy, typeDonne = {x = 340, y = 0, w = 125, h = 30, t = header}}
+            else
+                --* take create first ref
+                D[s2][#D[s2] + 1] = {x = 180, y = 0, w = 150, h = 30, t = '', s1 = '', s2 = s2, s3 = 1, dy = 0, typeDonne = {x = 340, y = 0, w = 125, h = 30, t = header}}
+            end
+            D[s2][#D[s2]].t = result
+        end
+        if header == "Concentration" then
+            mol.conc = tonumber(result)
+        elseif header == "Volume" then
+            mol.vol = tonumber(result)
+        elseif header == "Masse Mol" then
+            mol.mmol = tonumber(result)
+        elseif header == "Mol" then
+            mol.n = tonumber(result)
+        elseif header == "Masse" then
+            mol.masse = tonumber(result)
+        elseif header == "Nb Mol" then
+            mol.nbmol = tonumber(result)
+        elseif header == "Volume" then
+            mol.vol = tonumber(result)
+        elseif header == "Type" then
+            local words = {}
+            for word in result:gmatch("%w+") do table.insert(words, word) end
+            if (words[1] == "reaction" or words[1] == "melange") then
+                self.typ[words[1]] = tonumber(words[2])
+            else
+                self.typ[result] = result
+            end
+        elseif header == "ks" then
+            mol.ks = tonumber(result)
+        elseif header == "liaison2" then
+            mol.liaison.double = tonumber(result)
+        elseif header == "lisaison3" then
+            mol.liaison.triple = tonumber(result)
+        end
+    end
+
 end
 ---
 function m.new(self)

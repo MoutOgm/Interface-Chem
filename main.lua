@@ -1,6 +1,7 @@
 local fonc = require('function')
 --local const = require('const')
 --local utils = require('utils')
+
 local SI = require('stringInfo')
 local molecule = require('molecule')
 --- liste des scenes
@@ -44,6 +45,7 @@ function love.load()
     Buttons[4] = {x = 580, y = 80, w = 25, h = height, t = '+', s1 = 'select', s2 = ''}
     Buttons[5] = {x = 610, y = 80, w = 25, h = height, t = '-', s1 = 'select', s2 = ''}
     Buttons[6] = {x = 720, y = 550, w = 60, h = height, t = 'calcul', s1 = '', s2 = ''}
+    Buttons[7] = {x = 625, y = 10, w = 75, h = height, t = 'import', s1 = '', s2 = ''}
     --* Load TypeDo
     local widthtype = ClistType:getWidth()
     TypeDo[1] = {x = 0, y = 0, w = widthtype, h = height, t = "Mol"}
@@ -200,7 +202,14 @@ function love.draw()
         y = Buttons[1].y + (Buttons[1].h - font:getHeight(Buttons[1].t)) / 2
         love.graphics.print(Buttons[1].t, x, y)
     end
-
+    love.graphics.rectangle("line", Buttons[7].x, Buttons[7].y, Buttons[7].w, Buttons[7].h)
+    if Buttons[7].t ~= '' then
+        --TODO Draw Buttons 1 Text
+        local x, y
+        x = Buttons[7].x + (Buttons[7].w - font:getWidth(Buttons[7].t)) / 2
+        y = Buttons[7].y + (Buttons[7].h - font:getHeight(Buttons[7].t)) / 2
+        love.graphics.print(Buttons[7].t, x, y)
+    end
     love.graphics.rectangle("line", Buttons[6].x, Buttons[6].y, Buttons[6].w, Buttons[6].h)
     if Buttons[6].t ~= '' then
         --TODO Draw Buttons 1 Text
@@ -235,6 +244,28 @@ function love.draw()
     end
 end
 function love.mousepressed()
+    if  mouse.x >= Buttons[7].x and mouse.x <= Buttons[7].x + Buttons[7].w and mouse.y >= Buttons[7].y and mouse.y <= Buttons[7].y + Buttons[7].h then
+        os.execute('node xlsxtojson.js Molecules.xlsx')
+        local json = require('json')
+        local DJson = json.decode(io.open('returned.json'):read('*a'))
+        molecule:getHeader(DJson[1])
+        for i = 2, #DJson do
+            table.insert(Mol, molecule:new())
+            Donnes[#Donnes+1] = {}
+            molecule:register_from_json(Mol[#Mol], DJson[i], Donnes, #Mol)
+
+            if #TextZone ~= 0 then
+                local dT = TextZone[#TextZone]
+                TextZone[#TextZone+1] = {x = dT.x, y = dT.y, w = dT.w, h = dT.h, t = nil, s1 = '', s2 = dT.s2 + 1, dy = dT.dy}
+            else
+                TextZone[#TextZone+1] = {x = 10, y = 0, w = 150, h = 30, t = nil, s1 = '', s2 = 1, dy = 0}
+            end
+
+
+            scene[2] = nil
+            C3.draw = nil
+        end
+    end
     for i = 0, #TextZone do
         --TODO change textzone select "mol" ou "input mol"
         if mouse.x >= TextZone[i].x and mouse.x <= TextZone[i].x + TextZone[i].w and mouse.y >= TextZone[i].y and mouse.y <= TextZone[i].y + TextZone[i].h then
@@ -333,7 +364,7 @@ function love.mousepressed()
             if #Donnes[scene[2]] ~= 0 then
                 --* take les refs du dernier
                 local dT = Donnes[scene[2]][#Donnes[scene[2]]]
-                Donnes[scene[2]][#Donnes[scene[2]] + 1] = {x = dT.x, y = dT.y, w = dT.w, h = dT.h, t = '', s1 = '', s2 = dT.s2, s3 = dT.s3, dy = dT.dy, typeDonne = {x = 340, y = 0, w = 125, h = 30, t = 'null'}}
+                Donnes[scene[2]][#Donnes[scene[2]] + 1] = {x = dT.x, y = dT.y, w = dT.w, h = dT.h, t = '', s1 = '', s2 = dT.s2, s3 = dT.s3 + 1, dy = dT.dy, typeDonne = {x = 340, y = 0, w = 125, h = 30, t = 'null'}}
             else
                 --* take create first ref
                 Donnes[scene[2]][#Donnes[scene[2]] + 1] = {x = 180, y = 0, w = 150, h = 30, t = '', s1 = '', s2 = scene[2], s3 = 1, dy = 0, typeDonne = {x = 340, y = 0, w = 125, h = 30, t = 'null'}}
