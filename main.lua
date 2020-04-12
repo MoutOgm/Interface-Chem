@@ -256,7 +256,7 @@ function love.mousepressed()
         for i = 2, #DJson do
             Mol[#Mol+1] = molecule:new()
             Donnes[#Donnes+1] = {}
-            molecule:register_from_json(Mol[#Mol], DJson[i], Donnes, #Mol)
+            Mol[#Mol]:register_from_json(DJson[i], Donnes, #Mol)
 
             if #TextZone ~= 0 then
                 local dT = TextZone[#TextZone]
