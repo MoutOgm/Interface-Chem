@@ -245,10 +245,12 @@ function love.draw()
 end
 function love.mousepressed()
     if  mouse.x >= Buttons[7].x and mouse.x <= Buttons[7].x + Buttons[7].w and mouse.y >= Buttons[7].y and mouse.y <= Buttons[7].y + Buttons[7].h then
-        os.execute('node xlsxtojson.js Molecules.xlsx')
+        io.popen('node xlsxtojson.js Molecules.xlsx')
+        love.timer.sleep(0.3)
         local json = require('json')
         local DJson = json.decode(io.open('returned.json'):read('*a'))
         molecule:getHeader(DJson[1])
+
         for i = 2, #DJson do
             table.insert(Mol, molecule:new())
             Donnes[#Donnes+1] = {}
