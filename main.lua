@@ -261,10 +261,9 @@ function love.mousepressed()
                 TextZone[#TextZone+1] = {x = 10, y = 0, w = 150, h = 30, t = nil, s1 = '', s2 = 1, dy = 0}
             end
 
-
-            scene[2] = nil
-            C3.draw = nil
         end
+        scene[2] = nil
+        C3.draw = nil
     end
     for i = 0, #TextZone do
         --TODO change textzone select "mol" ou "input mol"
