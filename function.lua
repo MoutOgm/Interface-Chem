@@ -83,4 +83,10 @@ m.xmax = function (n, nbmol)
     --? n[1] * n[2] * nbmol
     return n / nbmol
 end
+
+m.mmol = function(masse, n)
+    --TODO print verif
+    print("FUNCTION mmol : [masse] = "..masse.." [n] = "..n)
+    return masse / n
+end
 return m

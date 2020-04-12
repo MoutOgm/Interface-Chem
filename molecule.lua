@@ -4,6 +4,45 @@ local utils = require('utils')
 local cal = require('function')
 ---@type mainClass
 local m = {}
+---Name molecule brut
+---@type brut
+m.brut = nil
+---'+ , - , ~' int
+---@type tableSI
+m.positive = nil
+---nb molecule
+---@type int
+m.nbmol = nil
+---masse molaire
+---@type gmol1
+m.mmol = nil
+---volume solution
+---@type L
+m.vol = nil
+---mol
+---@type mol
+m.n = nil
+---concentration
+---@type molL1
+m.conc = nil
+---type de la reaction
+---@type tableS
+m.typ = {}
+---masse
+---@type g
+m.masse = nil
+---ks
+---@type int
+m.ks = nil
+---nb atom
+---@type tableS
+m.atom = {}
+---nb liaison
+---@type tableSI
+m.liaison = {double = 0, triple = 0}
+--- molecule existe
+---@type boolean
+m.exist = nil
 ---
 function m.tabAdvance(reaction)
     for i in ipairs(reaction) do
@@ -29,29 +68,29 @@ function m.CV(melange)
     return "Work"
 end
 ---
-function m.getMelange(mol, m)
-    local k = utils.searchtype(mol, "melange")
+function m.getMelange(self, m)
+    local k = utils.searchtype(self, "melange")
     if k then
-        if not m[mol.typ["melange"]] then
-            m[mol.typ["melange"]] = {}
+        if not m[self.typ["melange"]] then
+            m[self.typ["melange"]] = {}
         end
-        table.insert(m[mol.typ["melange"]], mol)
+        table.insert(m[self.typ["melange"]], self)
     end
 end
 ---
-function m.getReact(mol, r)
-    local k = utils.searchtype(mol, "reaction")
-    local j = utils.searchtype(mol, "reactif")
+function m.getReact(self, r)
+    local k = utils.searchtype(self, "reaction")
+    local j = utils.searchtype(self, "reactif")
     if k then
-        if not r[mol.typ["reaction"]] then
-            r[mol.typ["reaction"]] = {reactifs = {}, produits = {}}
+        if not r[self.typ["reaction"]] then
+            r[self.typ["reaction"]] = {reactifs = {}, produits = {}}
         end
         if j then
-            table.insert(r[mol.typ["reaction"]].reactifs, mol)
+            table.insert(r[self.typ["reaction"]].reactifs, self)
         else
-            j = utils.searchtype(mol, "produit")
+            j = utils.searchtype(self, "produit")
             if j then
-                table.insert(r[mol.typ["reaction"]].produits, mol)
+                table.insert(r[self.typ["reaction"]].produits, self)
             end
         end
     end
@@ -89,16 +128,16 @@ function m.reaction(reaction)
     return boolReact
 end
 ---
-function m.exist(mol)
+function m.exist(self)
     local liaisons = 0
     local atoms = 0
-    for k, v in pairs(mol.atom) do
+    for k, v in pairs(self.atom) do
         local ok = const.isIn(k, const.ATOM)
         if ok == false then return ok end
         atoms = atoms + v
         liaisons = liaisons + const.ATOM[k][3] * v
     end
-    atoms = atoms + mol.liaison.double + (2 * mol.liaison.triple) - 1
+    atoms = atoms + self.liaison.double + (2 * self.liaison.triple) - 1
     if (math.ceil(liaisons / 2) == atoms) then
         return true
     else
@@ -106,18 +145,18 @@ function m.exist(mol)
     end
 end
 ---
-function m.getMasseMol(mol)
-    mol.mmol = 0
-    for k, v in pairs(mol.atom) do
-        mol.mmol = mol.mmol + (const.ATOM[k][1] * v)
+function m.getMasseMol(self)
+    self.mmol = 0
+    for k, v in pairs(self.atom) do
+        self.mmol = self.mmol + (const.ATOM[k][1] * v)
     end
 end
 ---
-function m.getAtom(mol)
-    for k, v in pairs(mol.atom) do
-        mol.atom[k] = 0
+function m.getAtom(self)
+    for k, v in pairs(self.atom) do
+        self.atom[k] = 0
     end
-    local s = mol.brut
+    local s = self.brut
     local i = 1
     while i <= s:len() do
         local k = i
@@ -125,8 +164,8 @@ function m.getAtom(mol)
             if (not (s:sub(k + 1, k + 1) >= '0' and s:sub(k + 1, k + 1) <= '9')) then
                 k = k + 1
             end
-            if mol.atom[s:sub(i, k)] == nil then
-                mol.atom[s:sub(i, k)] = 0
+            if self.atom[s:sub(i, k)] == nil then
+                self.atom[s:sub(i, k)] = 0
             end
         else
             local j = k
@@ -142,27 +181,27 @@ function m.getAtom(mol)
             end
             k = j - 1
             if string ~= '' then
-                mol.atom[string] = mol.atom[string] + tonumber(s:sub(i, k))
+                self.atom[string] = self.atom[string] + tonumber(s:sub(i, k))
             end
         end
         i = k + 1
     end
 end
 ---
-function m.getNum(mol)
-    local s = mol.brut
+function m.getNum(self)
+    local s = self.brut
     local haveNum = true
     while SI.isNum(s) do
         s = s:sub(1, -2)
         if s:len() == 0 then
-            mol.nbmol = 1
+            self.nbmol = 1
             haveNum = false
             break
         end
     end
     if haveNum then
-        mol.nbmol = tonumber(s)
-        mol.brut = mol.brut:sub(s:len() + 1) --* enlever le nb de mol
+        self.nbmol = tonumber(s)
+        self.brut = self.brut:sub(s:len() + 1) --* enlever le nb de mol
     end
 end
 ---
@@ -251,10 +290,10 @@ function m:getHeader(JsonHeader)
     end
 end
 ---
-function m:register_from_json(mol, tablejson, D, s2)
+function m:register_from_json(tablejson, D, s2)
     --create new mol
     --add donnes
-    mol.brut = tablejson["A"]
+    self.brut = tablejson["A"]
     for k in pairs(self.Header) do
         local header = self.Header[k]
         local result = tablejson[k]
@@ -271,19 +310,19 @@ function m:register_from_json(mol, tablejson, D, s2)
             D[s2][#D[s2]].t = result
         end
         if header == "Concentration" then
-            mol.conc = tonumber(result)
+            self.conc = tonumber(result)
         elseif header == "Volume" then
-            mol.vol = tonumber(result)
+            self.vol = tonumber(result)
         elseif header == "Masse Mol" then
-            mol.mmol = tonumber(result)
+            self.mmol = tonumber(result)
         elseif header == "Mol" then
-            mol.n = tonumber(result)
+            self.n = tonumber(result)
         elseif header == "Masse" then
-            mol.masse = tonumber(result)
+            self.masse = tonumber(result)
         elseif header == "Nb Mol" then
-            mol.nbmol = tonumber(result)
+            self.nbmol = tonumber(result)
         elseif header == "Volume" then
-            mol.vol = tonumber(result)
+            self.vol = tonumber(result)
         elseif header == "Type" then
             local words = {}
             for word in result:gmatch("%w+") do table.insert(words, word) end
@@ -293,57 +332,20 @@ function m:register_from_json(mol, tablejson, D, s2)
                 self.typ[result] = result
             end
         elseif header == "ks" then
-            mol.ks = tonumber(result)
+            self.ks = tonumber(result)
         elseif header == "liaison2" then
-            mol.liaison.double = tonumber(result)
+            self.liaison.double = tonumber(result)
         elseif header == "lisaison3" then
-            mol.liaison.triple = tonumber(result)
+            self.liaison.triple = tonumber(result)
         end
     end
 
 end
+m.__index = m
 ---
 function m.new(self)
-    return {
-    ---Name molecule brut
-    ---@type brut
-    brut = nil,
-    ---'+ , - , ~' int
-    ---@type tableSI
-    positive = nil,
-    ---nb molecule
-    ---@type int
-    nbmol = nil,
-    ---masse molaire
-    ---@type gmol1
-    mmol = nil,
-    ---volume solution
-    ---@type L
-    vol = nil,
-    ---mol
-    ---@type mol
-    n = nil,
-    ---concentration
-    ---@type molL1
-    conc = nil,
-    ---type de la reaction
-    ---@type tableS
-    typ = {},
-    ---masse
-    ---@type g
-    masse = nil,
-    ---ks
-    ---@type int
-    ks = nil,
-    ---nb atom
-    ---@type tableS
-    atom = {},
-    ---nb liaison
-    ---@type tableSI
-    liaison = {double = 0, triple = 0},
-    --- molecule existe
-    ---@type boolean
-    exist = nil,
-    }
+    local t = {}
+    setmetatable(t, self)
+    return t
 end
 return m

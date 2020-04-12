@@ -1,59 +1,59 @@
 local m = {}
-m.Reset = "\x1b[0m"
-m.Rfg = "\x1b[39m"
-m.Rbg = "\x1b[49m"
+m.Reset = "\x1B[0m"
+m.Rfg = "\x1B[39m"
+m.Rbg = "\x1B[49m"
 
-m.fg_black = "\x1b[30m"
+m.fg_black = "\x1B[30m"
 
-m.bg_black = "\x1b[40m"
+m.bg_black = "\x1B[40m"
 
-m.fg_red = "\x1b[31m"
+m.fg_red = "\x1B[31m"
 
-m.bg_red = "\x1b[41m"
+m.bg_red = "\x1B[41m"
 
-m.fg_green = "\x1b[32m"
+m.fg_green = "\x1B[32m"
 
-m.bg_green = "\x1b[42m"
+m.bg_green = "\x1B[42m"
 
-m.fg_yellow = "\x1b[33m"
+m.fg_yellow = "\x1B[33m"
 
-m.bg_yellow = "\x1b[43m"
+m.bg_yellow = "\x1B[43m"
 
-m.fg_blue = "\x1b[34m"
+m.fg_blue = "\x1B[34m"
 
-m.bg_blue = "\x1b[44m"
+m.bg_blue = "\x1B[44m"
 
-m.fg_magenta = "\x1b[35m"
+m.fg_magenta = "\x1B[35m"
 
-m.bg_magenta = "\x1b[45m"
+m.bg_magenta = "\x1B[45m"
 
-m.fg_cyan = "\x1b[36m"
+m.fg_cyan = "\x1B[36m"
 
-m.bg_cyan = "\x1b[46m"
+m.bg_cyan = "\x1B[46m"
 
-m.fg_white = "\x1b[37m"
+m.fg_white = "\x1B[37m"
 
-m.bg_white = "\x1b[47m"
+m.bg_white = "\x1B[47m"
 
-m.fg_bblack = "\x1b[90m"
+m.fg_bblack = "\x1B[90m"
 
-m.bg_bblack = "\x1b[100m"
+m.bg_bblack = "\x1B[100m"
 
-m.fg_bred = "\x1b[91m"
+m.fg_bred = "\x1B[91m"
 
-m.bg_bred = "\x1b[101m"
+m.bg_bred = "\x1B[101m"
 
-m.fg_bgreen = "\x1b[92m"
+m.fg_bgreen = "\x1B[92m"
 
-m.bg_bgreen = "\x1b[102m"
+m.bg_bgreen = "\x1B[102m"
 
-m.fg_byellow = "\x1b[93m"
+m.fg_byellow = "\x1B[93m"
 
-m.bg_byellow = "\x1b[103m"
+m.bg_byellow = "\x1B[103m"
 
-m.fg_bblue = "\x1b[94m"
+m.fg_bblue = "\x1B[94m"
 
-m.bg_bblue = "\x1b[104m"
+m.bg_bblue = "\x1B[104m"
 
 function m.red_fg(string) return m.fg_red..string..m.Rfg end
 function m.red_bg(string) return m.bg_red..string..m.Rbg end

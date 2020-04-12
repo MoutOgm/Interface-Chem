@@ -254,7 +254,7 @@ function love.mousepressed()
         molecule:getHeader(DJson[1])
 
         for i = 2, #DJson do
-            table.insert(Mol, molecule:new())
+            Mol[#Mol+1] = molecule:new()
             Donnes[#Donnes+1] = {}
             molecule:register_from_json(Mol[#Mol], DJson[i], Donnes, #Mol)
 
@@ -295,7 +295,7 @@ function love.mousepressed()
         --TODO create Mol with Brut
         if Buttons:click(1, mouse) then
             if TextZone[0].t ~= '' and scene[2] ~= nil then
-                table.insert(Mol, molecule:new())
+                Mol[#Mol+1] = molecule:new()
                 Mol[#Mol].brut = TextZone[0].t
                 Donnes[#Donnes+1] = {}
                 --[[
@@ -335,8 +335,7 @@ function love.mousepressed()
         if Buttons:click(2, mouse) then
             --TODO register donnes
             --enregistrer
-
-            molecule.register(Mol[scene[2]], Donnes[scene[2]])
+            Mol[scene[2]]:register(Donnes[scene[2]])
 
             --* reset scene
             scene[3] = nil
@@ -409,20 +408,20 @@ function love.mousepressed()
             -- if molecules number's changed
             if Mol[i].nbmol == nil and not SI.isNum(Mol[i].brut:sub(1, 1)) then
                 --* get number of molecules
-                molecule.getNum(Mol[i])
+                Mol[i]:getNum()
             end
             --* get atoms of molecules
-            molecule.getAtom(Mol[i])
+            Mol[i]:getAtom()
             --* get if molecule exist
-            Mol[i].exist = molecule.exist(Mol[i])
+            Mol[i].exist = Mol[i]:exist()
             if Mol[i].exist then
                 --* get M of molecules
-                molecule.getMasseMol(Mol[i])
+                Mol[i]:getMasseMol()
             end
             --* get number of the reaction
-            molecule.getReact(Mol[i], reactions)
+            Mol[i]:getReact(reactions)
             --* get number of the melange
-            molecule.getMelange(Mol[i], melanges)
+            Mol[i]:getMelange(melanges)
         end
         --- list of reaction work or not
         local reactWork = molecule.reaction(reactions)
@@ -441,6 +440,9 @@ function love.mousepressed()
                 if Mol[i].masse then
                     if Mol[i].mmol then
                         Mol[i].n = fonc.calnmasse(Mol[i].masse, Mol[i].mmol)
+                    end
+                    if not Mol[i].exist and Mol[i].n then
+                        Mol[i].mmol = fonc.mmol(Mol[i].masse, Mol[i].n)
                     end
                 end
                 if Mol[i].n then
