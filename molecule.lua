@@ -93,6 +93,8 @@ function m.exist(mol)
     local liaisons = 0
     local atoms = 0
     for k, v in pairs(mol.atom) do
+        local ok = const.isIn(k, const.ATOM)
+        if ok == false then return ok end
         atoms = atoms + v
         liaisons = liaisons + const.ATOM[k][3] * v
     end

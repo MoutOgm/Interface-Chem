@@ -6,7 +6,14 @@ local m = {}
         elec
         liaisons
 ]]
-
+-- a faire avec molecule verif quelles existe
+function m.isIn(char, table)
+	if table[char] ~= nil then
+		return true
+	else
+		return false
+	end
+end
 m.ATOM = {
     --1 carac
 	H = { 1, 2.2, 1},

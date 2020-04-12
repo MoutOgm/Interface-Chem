@@ -15,7 +15,7 @@ local TextZone = {} --* liste de zone de text pour molecule
 --- liste zone entrer de donnes
 local Donnes = {} --* liste de textzone mais specialement pour les donnes
 --- liste des buttons
-local Buttons = {} --* liste des bouttons
+local Buttons = require('buttons') --* liste des bouttons
 --- liste text de typedonne
 local TypeDo = {}
 --- canvas liste molecule
@@ -23,7 +23,7 @@ local ClistMol = love.graphics.newCanvas(160, 450) --* canvas molecules
 --- canvas liste donne
 local ClistDonne = love.graphics.newCanvas(475, 450) --* canvas Donnes
 --- canvas liste type donne
-local ClistType = love.graphics.newCanvas(130, 225)
+local ClistType = love.graphics.newCanvas(130, 250)
 --- position canvas 1
 local C1 = { x = 10, y = 70 } --* pos canvas Mol
 --- position canvas 2
@@ -39,13 +39,14 @@ function love.load()
     --- largeur des cases
     local height = 25
     TextZone[0] = {x = 10, y = 10, w = 500, h = height, t = '', s1 = '', s2 = ''}
-    Buttons[1] = {x = 550, y = 10, w = 25, h = height, t = "+", s1 = '', s2 = ''}
-    Buttons[2] = {x = 550, y = 475, w = 50, h = height, t = "save", s1 = 'select', s2 = ''}
-    Buttons[3] = {x = 550, y = 440, w = 50, h = height, t = 'supp', s1 = 'select', s2 = ''}
-    Buttons[4] = {x = 580, y = 80, w = 25, h = height, t = '+', s1 = 'select', s2 = ''}
-    Buttons[5] = {x = 610, y = 80, w = 25, h = height, t = '-', s1 = 'select', s2 = ''}
-    Buttons[6] = {x = 720, y = 550, w = 60, h = height, t = 'calcul', s1 = '', s2 = ''}
-    Buttons[7] = {x = 625, y = 10, w = 75, h = height, t = 'import', s1 = '', s2 = ''}
+    Buttons:new(550, 10, 25, height, "+", '', '')
+    Buttons:new(550, 475, 50, height, "save", 'select', '')
+    Buttons:new(550, 440, 50, height, "supp", 'select', '')
+    Buttons:new(580, 80, 25, height, "+", 'select', '')
+    Buttons:new(610, 80, 25, height, "-", 'select', '')
+    Buttons:new(720, 550, 60, height, "calcul", '', '')
+    Buttons:new(625, 10, 75, height, "import", '', '')
+
     --* Load TypeDo
     local widthtype = ClistType:getWidth()
     TypeDo[1] = {x = 0, y = 0, w = widthtype, h = height, t = "Mol"}
@@ -57,6 +58,7 @@ function love.load()
     TypeDo[7] = {x = 0, y = 150, w = widthtype, h = height, t = "Positif"}
     TypeDo[8] = {x = 0, y = 175, w = widthtype, h = height, t = "liaison2"}
     TypeDo[9] = {x = 0, y = 200, w = widthtype, h = height, t = "liaison3"}
+    TypeDo[10] = {x = 0, y = 225, w = widthtype, h = height, t = "Masse Mol"}
     --* Load center text doesn't need refresh
     Scenter["1"] = {x = TextZone[0].x + 5, y = TextZone[0].y + (TextZone[0].h - font:getHeight(TextZone[0].t)) / 2}
     Scenter["2"] = {x = Buttons[2].x + (Buttons[2].w - font:getWidth(Buttons[2].t)) / 2 - C2.x, y = Buttons[2].y + (Buttons[2].h - font:getHeight(Buttons[2].t)) / 2 - C2.y}
@@ -103,7 +105,7 @@ function love.update(dt)
     for i = 1, #Buttons do
         if Buttons[i].s1 == '' or Buttons[i].s1 == scene[1] then
             --TODO change cursor si il est sur un boutton qui appartient a la scene
-            if mouse.x >= Buttons[i].x and mouse.x <= Buttons[i].x + Buttons[i].w and mouse.y >= Buttons[i].y and mouse.y <= Buttons[i].y + Buttons[i].h then
+            if Buttons:click(i, mouse) then
                 love.mouse.setCursor(love.mouse.getSystemCursor("hand"))
             end
         end
@@ -244,7 +246,7 @@ function love.draw()
     end
 end
 function love.mousepressed()
-    if  mouse.x >= Buttons[7].x and mouse.x <= Buttons[7].x + Buttons[7].w and mouse.y >= Buttons[7].y and mouse.y <= Buttons[7].y + Buttons[7].h then
+    if Buttons:click(7, mouse) then
         io.popen('node xlsxtojson.js Molecules.xlsx')
         love.timer.sleep(0.3)
         local json = require('json')
@@ -291,7 +293,7 @@ function love.mousepressed()
     end
     if scene[1] == 'input' then
         --TODO create Mol with Brut
-        if mouse.x >= Buttons[1].x and mouse.x <= Buttons[1].x + Buttons[1].w and mouse.y >= Buttons[1].y and mouse.y <= Buttons[1].y + Buttons[1].h then
+        if Buttons:click(1, mouse) then
             if TextZone[0].t ~= '' and scene[2] ~= nil then
                 table.insert(Mol, molecule:new())
                 Mol[#Mol].brut = TextZone[0].t
@@ -330,7 +332,7 @@ function love.mousepressed()
                 break
             end
         end
-        if mouse.x >= Buttons[2].x and mouse.x <= Buttons[2].x + Buttons[2].w and mouse.y >= Buttons[2].y and mouse.y <= Buttons[2].y + Buttons[2].h then
+        if Buttons:click(2, mouse) then
             --TODO register donnes
             --enregistrer
 
@@ -341,7 +343,7 @@ function love.mousepressed()
             scene[2] = nil
             scene[1] = 'input'
             C3.draw = nil
-        elseif mouse.x >= Buttons[3].x and mouse.x <= Buttons[3].x + Buttons[3].w and mouse.y >= Buttons[3].y and mouse.y <= Buttons[3].y + Buttons[3].h then
+        elseif Buttons:click(3, mouse) then
             --TODO supp Mol in list
             --* reiterer les s2 des textzones
             for i = scene[2], #TextZone do
@@ -360,7 +362,7 @@ function love.mousepressed()
             scene[2] = nil
             scene[3] = nil
             C3.draw = nil
-        elseif mouse.x >= Buttons[4].x and mouse.x <= Buttons[4].x + Buttons[4].w and mouse.y >= Buttons[4].y and mouse.y <= Buttons[4].y + Buttons[4].h then
+        elseif Buttons:click(4, mouse) then
             --TODO add une Donne vide de la Mol
             if #Donnes[scene[2]] ~= 0 then
                 --* take les refs du dernier
@@ -371,7 +373,7 @@ function love.mousepressed()
                 Donnes[scene[2]][#Donnes[scene[2]] + 1] = {x = 180, y = 0, w = 150, h = 30, t = '', s1 = '', s2 = scene[2], s3 = 1, dy = 0, typeDonne = {x = 340, y = 0, w = 125, h = 30, t = 'null'}}
             end
             C3.draw = nil
-        elseif mouse.x >= Buttons[5].x and mouse.x <= Buttons[5].x + Buttons[5].w and mouse.y >= Buttons[5].y and mouse.y <= Buttons[5].y + Buttons[5].h then
+        elseif Buttons:click(5, mouse) then
             --TODO supp une Donne dnas la liste Donnes de Mol
             if scene[3] ~= nil then
                 --* reiterer les s3 de Donnes
@@ -388,7 +390,7 @@ function love.mousepressed()
             end
         end
     end
-    if mouse.x >= Buttons[6].x and mouse.x <= Buttons[6].x + Buttons[6].w and mouse.y >= Buttons[6].y and mouse.y <= Buttons[6].y + Buttons[6].h then
+    if Buttons:click(6, mouse) then
         --TODO calcul
         local utils = require('utils')
         local const = require('const')
@@ -411,10 +413,12 @@ function love.mousepressed()
             end
             --* get atoms of molecules
             molecule.getAtom(Mol[i])
-            --* get M of molecules
-            molecule.getMasseMol(Mol[i])
             --* get if molecule exist
             Mol[i].exist = molecule.exist(Mol[i])
+            if Mol[i].exist then
+                --* get M of molecules
+                molecule.getMasseMol(Mol[i])
+            end
             --* get number of the reaction
             molecule.getReact(Mol[i], reactions)
             --* get number of the melange
