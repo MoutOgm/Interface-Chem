@@ -247,8 +247,8 @@ function love.draw()
 end
 function love.mousepressed()
     if Buttons:click(7, mouse) then
-        io.popen('node xlsxtojson.js Molecules.xlsx')
-        love.timer.sleep(0.3)
+        local f = io.popen('node xlsxtojson.js Molecules.xlsx')
+        f:close()
         local json = require('json')
         local DJson = json.decode(io.open('returned.json'):read('*a'))
         molecule:getHeader(DJson[1])
@@ -267,6 +267,7 @@ function love.mousepressed()
 
         end
         scene[2] = nil
+        scene[3] = nil
         C3.draw = nil
     end
     for i = 0, #TextZone do
@@ -391,6 +392,10 @@ function love.mousepressed()
     end
     if Buttons:click(6, mouse) then
         --TODO calcul
+        scene[2] = nil
+        scene[3] = nil
+        C3.draw = nil
+
         local utils = require('utils')
         local const = require('const')
         --- fichier decriture resultats finaux

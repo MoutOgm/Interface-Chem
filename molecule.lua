@@ -309,34 +309,36 @@ function m:register_from_json(tablejson, D, s2)
             end
             D[s2][#D[s2]].t = result
         end
-        if header == "Concentration" then
-            self.conc = tonumber(result)
-        elseif header == "Volume" then
-            self.vol = tonumber(result)
-        elseif header == "Masse Mol" then
-            self.mmol = tonumber(result)
-        elseif header == "Mol" then
-            self.n = tonumber(result)
-        elseif header == "Masse" then
-            self.masse = tonumber(result)
-        elseif header == "Nb Mol" then
-            self.nbmol = tonumber(result)
-        elseif header == "Volume" then
-            self.vol = tonumber(result)
-        elseif header == "Type" then
-            local words = {}
-            for word in result:gmatch("%w+") do table.insert(words, word) end
-            if (words[1] == "reaction" or words[1] == "melange") then
-                self.typ[words[1]] = tonumber(words[2])
-            else
-                self.typ[result] = result
+        if result ~= nil then
+            if header == "Concentration" then
+                self.conc = tonumber(result)
+            elseif header == "Volume" then
+                self.vol = tonumber(result)
+            elseif header == "Masse Mol" then
+                self.mmol = tonumber(result)
+            elseif header == "Mol" then
+                self.n = tonumber(result)
+            elseif header == "Masse" then
+                self.masse = tonumber(result)
+            elseif header == "Nb Mol" then
+                self.nbmol = tonumber(result)
+            elseif header == "Volume" then
+                self.vol = tonumber(result)
+            elseif header == "Type" then
+                local words = {}
+                for word in result:gmatch("%w+") do table.insert(words, word) end
+                if (words[1] == "reaction" or words[1] == "melange") then
+                    self.typ[words[1]] = tonumber(words[2])
+                else
+                    self.typ[result] = result
+                end
+            elseif header == "ks" then
+                self.ks = tonumber(result)
+            elseif header == "liaison2" then
+                self.liaison.double = tonumber(result)
+            elseif header == "lisaison3" then
+                self.liaison.triple = tonumber(result)
             end
-        elseif header == "ks" then
-            self.ks = tonumber(result)
-        elseif header == "liaison2" then
-            self.liaison.double = tonumber(result)
-        elseif header == "lisaison3" then
-            self.liaison.triple = tonumber(result)
         end
     end
 
