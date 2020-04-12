@@ -8,7 +8,7 @@ local m = {}
 ---calcul n avec g and M
 m.calnmasse = function (masse, mmol)
     --TODO print verif
-    print(c.blue_fg("FUNCTION").." calnmasse : [masse] = " .. masse .. " [mmol] = " .. mmol)
+    print(c.blue_fg("FUNCTION").." calnmasse : [masse] = " .. masse .. " [mmol] = " .. mmol.."\n")
     --? masse[1] * masse[2] / mmol[1] * mmol[2]
     return masse / mmol
 end
@@ -18,7 +18,7 @@ end
 ---calcul n avec molL1 and L
 m.calnconc = function (conc, vol)
     --TODO print verif
-    print("FUNCTION calnconc : [conc] = " .. conc .. " [vol] = " .. vol)
+    print("FUNCTION calnconc : [conc] = " .. conc .. " [vol] = " .. vol.."\n")
     --? conc[1] * conc[2] * vol[1] * vol[2]
     return conc * vol
 end
@@ -28,7 +28,7 @@ end
 ---calcul n avec xmax and nbmol
 m.calnxmax = function (xmax, nbmol)
     --TODO print verif
-    print("FUNCTION calnxmax : [xmax] = " .. xmax .. " [nbmol] = " .. nbmol)
+    print("FUNCTION calnxmax : [xmax] = " .. xmax .. " [nbmol] = " .. nbmol.."\n")
     --? xmax[1] * xmax[2] * nbmol
     return xmax * nbmol
 end
@@ -38,7 +38,7 @@ end
 ---calcul concentration avec mol and L
 m.conc = function (n, vol)
     --TODO print verif
-    print("FUNCTION conc : [n] = " .. n .. " [vol] = " .. vol)
+    print("FUNCTION conc : [n] = " .. n .. " [vol] = " .. vol.."\n")
     --? n[1] * n[2] * vol[1] * vol[2]
     return n / vol
 end
@@ -48,7 +48,7 @@ end
 ---calcul masse avec mol and M
 m.masse = function (n, mmol)
     --TODO print verif
-    print("FUNCTION masse : [n] = " .. n .. " [mmol] = " .. mmol)
+    print("FUNCTION masse : [n] = " .. n .. " [mmol] = " .. mmol.."\n")
     --? n[1] * n[2] * mmol[1] * mmol[2]
     return n * mmol
 end
@@ -58,7 +58,7 @@ end
 ---calcul vol avec mol and molL1
 m.volconc = function (n, conc)
     --TODO print verif
-    print("FUNCTION volconc : [n] = " .. n .. " [conc] = " .. conc)
+    print("FUNCTION volconc : [n] = " .. n .. " [conc] = " .. conc.."\n")
     --? n[1] * n[2] / conc[1] * conc[2]
     return n / conc
 end
@@ -69,7 +69,7 @@ end
 ---calcul concentration avec molL1 and L and Ltot
 m.conccv = function (conc, vol, vtot)
     --TODO print verif
-    print("FUNCTION conccv : [conc] = " .. conc .. " [vol] = " .. vol .. " [vtot] = " .. vtot)
+    print("FUNCTION conccv : [conc] = " .. conc .. " [vol] = " .. vol .. " [vtot] = " .. vtot.."\n")
     --? conc[1] * conc[2] * vol[1] * vol[2] / vtot[1] * vtot[2]
     return (conc * vol) / vtot
 end
@@ -79,7 +79,7 @@ end
 ---calcul xmax avec mol and nb molecule
 m.xmax = function (n, nbmol)
     --TODO print verif
-    print("FUNCTION xmax : [n] = " .. n .. " [nbmol] = " .. nbmol)
+    print("FUNCTION xmax : [n] = " .. n .. " [nbmol] = " .. nbmol.."\n")
     --? n[1] * n[2] * nbmol
     return n / nbmol
 end

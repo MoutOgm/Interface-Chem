@@ -6,3 +6,4 @@ var result = excelToJson({
 fs.writeFile('returned.json', JSON.stringify(result['Feuil1']), function (err) {
   if (err) return console.log(err)
 })
+process.exit()
