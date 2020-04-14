@@ -8,7 +8,7 @@ local m = {}
 ---calcul n avec g and M
 m.calnmasse = function (masse, mmol)
     --TODO print verif
-    print(s"FUNCTION calnmasse : [masse] = " .. masse .. " [mmol] = " .. mmol)
+    print("FUNCTION calnmasse : [masse] = " .. masse .. " [mmol] = " .. mmol)
     --? masse[1] * masse[2] / mmol[1] * mmol[2]
     return masse / mmol
 end
