@@ -1,4 +1,4 @@
-local c = require('Color')
+
 ---@type mainClass
 local m = {}
 
@@ -8,7 +8,7 @@ local m = {}
 ---calcul n avec g and M
 m.calnmasse = function (masse, mmol)
     --TODO print verif
-    print(c.blue_fg("FUNCTION").." calnmasse : [masse] = " .. masse .. " [mmol] = " .. mmol)
+    print(s"FUNCTION calnmasse : [masse] = " .. masse .. " [mmol] = " .. mmol)
     --? masse[1] * masse[2] / mmol[1] * mmol[2]
     return masse / mmol
 end

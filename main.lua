@@ -1,7 +1,7 @@
 local fonc = require('function')
 --local const = require('const')
 --local utils = require('utils')
-
+local button = require('buttons')
 local SI = require('stringInfo')
 local molecule = require('molecule')
 --- liste des scenes
@@ -15,7 +15,7 @@ local TextZone = {} --* liste de zone de text pour molecule
 --- liste zone entrer de donnes
 local Donnes = {} --* liste de textzone mais specialement pour les donnes
 --- liste des buttons
-local Buttons = require('buttons') --* liste des bouttons
+local Buttons = {} --* liste des bouttons
 --- liste text de typedonne
 local TypeDo = {}
 --- canvas liste molecule
@@ -39,13 +39,13 @@ function love.load()
     --- largeur des cases
     local height = 25
     TextZone[0] = {x = 10, y = 10, w = 500, h = height, t = '', s1 = '', s2 = ''}
-    Buttons:new(550, 10, 25, height, "+", '', '')
-    Buttons:new(550, 475, 50, height, "save", 'select', '')
-    Buttons:new(550, 440, 50, height, "supp", 'select', '')
-    Buttons:new(580, 80, 25, height, "+", 'select', '')
-    Buttons:new(610, 80, 25, height, "-", 'select', '')
-    Buttons:new(720, 550, 60, height, "calcul", '', '')
-    Buttons:new(625, 10, 75, height, "import", '', '')
+    Buttons[1] = button:new(550, 10, 25, height, "+", '', '')
+    Buttons[2] = button:new(550, 475, 50, height, "save", 'select', '')
+    Buttons[3] = button:new(550, 440, 50, height, "supp", 'select', '')
+    Buttons[4] = button:new(580, 80, 25, height, "+", 'select', '')
+    Buttons[5] = button:new(610, 80, 25, height, "-", 'select', '')
+    Buttons[6] = button:new(720, 550, 60, height, "calcul", '', '')
+    Buttons[7] = button:new(625, 10, 75, height, "import", '', '')
 
     --* Load TypeDo
     local widthtype = ClistType:getWidth()
@@ -105,7 +105,7 @@ function love.update(dt)
     for i = 1, #Buttons do
         if Buttons[i].s1 == '' or Buttons[i].s1 == scene[1] then
             --TODO change cursor si il est sur un boutton qui appartient a la scene
-            if Buttons:click(i, mouse) then
+            if Buttons[i]:click(mouse) then
                 love.mouse.setCursor(love.mouse.getSystemCursor("hand"))
             end
         end
@@ -246,7 +246,7 @@ function love.draw()
     end
 end
 function love.mousepressed()
-    if Buttons:click(7, mouse) then
+    if Buttons[7]:click(mouse) then
         local f = io.popen('node xlsxtojson.js Molecules.xlsx')
         f:close()
         local json = require('json')
@@ -257,7 +257,6 @@ function love.mousepressed()
             Mol[#Mol+1] = molecule:new()
             Donnes[#Donnes+1] = {}
             Mol[#Mol]:register_from_json(DJson[i], Donnes, #Mol)
-
             if #TextZone ~= 0 then
                 local dT = TextZone[#TextZone]
                 TextZone[#TextZone+1] = {x = dT.x, y = dT.y, w = dT.w, h = dT.h, t = nil, s1 = '', s2 = dT.s2 + 1, dy = dT.dy}
@@ -294,7 +293,7 @@ function love.mousepressed()
     end
     if scene[1] == 'input' then
         --TODO create Mol with Brut
-        if Buttons:click(1, mouse) then
+        if Buttons[1]:click(mouse) then
             if TextZone[0].t ~= '' and scene[2] ~= nil then
                 Mol[#Mol+1] = molecule:new()
                 Mol[#Mol].brut = TextZone[0].t
@@ -333,7 +332,7 @@ function love.mousepressed()
                 break
             end
         end
-        if Buttons:click(2, mouse) then
+        if Buttons[2]:click(mouse) then
             --TODO register donnes
             --enregistrer
             Mol[scene[2]]:register(Donnes[scene[2]])
@@ -343,7 +342,7 @@ function love.mousepressed()
             scene[2] = nil
             scene[1] = 'input'
             C3.draw = nil
-        elseif Buttons:click(3, mouse) then
+        elseif Buttons[3]:click(mouse) then
             --TODO supp Mol in list
             --* reiterer les s2 des textzones
             for i = scene[2], #TextZone do
@@ -362,7 +361,7 @@ function love.mousepressed()
             scene[2] = nil
             scene[3] = nil
             C3.draw = nil
-        elseif Buttons:click(4, mouse) then
+        elseif Buttons[4]:click(mouse) then
             --TODO add une Donne vide de la Mol
             if #Donnes[scene[2]] ~= 0 then
                 --* take les refs du dernier
@@ -373,7 +372,7 @@ function love.mousepressed()
                 Donnes[scene[2]][#Donnes[scene[2]] + 1] = {x = 180, y = 0, w = 150, h = 30, t = '', s1 = '', s2 = scene[2], s3 = 1, dy = 0, typeDonne = {x = 340, y = 0, w = 125, h = 30, t = 'null'}}
             end
             C3.draw = nil
-        elseif Buttons:click(5, mouse) then
+        elseif Buttons[5]:click(mouse) then
             --TODO supp une Donne dnas la liste Donnes de Mol
             if scene[3] ~= nil then
                 --* reiterer les s3 de Donnes
@@ -381,7 +380,7 @@ function love.mousepressed()
                     Donnes[scene[2]][i].s3 = Donnes[scene[2]][i].s3 -1
                 end
                 --* typedonne supp de la mol
-                molecule.removeD(Mol[scene[2]], Donnes[scene[2]], scene[3])
+                Mol[scene[2]]:removeD(Donnes[scene[2]], scene[3])
                 --* remove table
                 table.remove(Donnes[scene[2]], scene[3])
                 --* reset scene
@@ -390,7 +389,7 @@ function love.mousepressed()
             end
         end
     end
-    if Buttons:click(6, mouse) then
+    if Buttons[6]:click(mouse) then
         --TODO calcul
         scene[2] = nil
         scene[3] = nil
@@ -398,8 +397,9 @@ function love.mousepressed()
 
         local utils = require('utils')
         local const = require('const')
-        --- fichier decriture resultats finaux
-        local toFile = io.open("Finish.txt", "w+")
+        --- fichier decriture resultats finaux .."].txt")
+        local Date = os.date("%a_%b_%H_%M_%S")
+        local toFile = io.open("Finish/Finish[".. Date .."].txt", "w+")
         --- conteneur molecule de chaque reaction
         local reactions = {}
         --- conteneur molecule de chaque melange
@@ -407,7 +407,7 @@ function love.mousepressed()
         --- conteneur erreur sur un calcul de melange
         local errM = {}
         --- conteneur erreur sur un calcul T.A.
-        local errR = {}
+        local errR = {xmax = {}}
         -- for initilisateur
         for i = 1, #Mol do
             -- if molecules number's changed
@@ -418,7 +418,8 @@ function love.mousepressed()
             --* get atoms of molecules
             Mol[i]:getAtom()
             --* get if molecule exist
-            Mol[i].exist = Mol[i]:exist()
+            Mol[i].exist = Mol[i]:getExist()
+
             if Mol[i].exist then
                 --* get M of molecules
                 Mol[i]:getMasseMol()
@@ -436,8 +437,8 @@ function love.mousepressed()
         end
         --
         for i in ipairs(reactions) do
-            if reactWork[i] == "Work" then
-                errR[i] = molecule.tabAdvance(reactions[i])
+            if reactWork[i] then
+                errR[i], errR.xmax[i] = molecule.tabAdvance(reactions[i])
             end
         end
         for k = 0, 1 do
@@ -467,19 +468,36 @@ function love.mousepressed()
                 end
             end
         end
-        -- melanges if errM == "error"
-        -- reactions if errR == "error"
-        --tableau(reactions, reactWork)
-        for i in ipairs(Mol) do
-            --[[
-            toFile:write(Mol[i].brut.." >>>\n")
-            toFile:write("  M : "..Mol[i].mmol.." g/mol\n")
-            toFile:write("  Mol : "..Mol[i].n.." mol\n")
-            toFile:write("  Masse : "..Mol[i].masse.." g\n")
-            toFile:write("  Concentration : "..Mol[i].conc.." mol/L\n")
-            toFile:write("  Volume : "..Mol[i].vol.." L\n")
-            ]]
+        for i in ipairs(errM) do
+            if errM[i] == "Error" then
+                errM[i] = molecule.CV(melanges)
+            end
         end
+        for i in ipairs(errR) do
+            if errR[i] == "Error" then
+                errR[i], errR.xmax[i] = molecule.tabAdvance(melanges)
+            end
+        end
+        for i in ipairs(Mol) do
+            utils.writeL(toFile, "Molecule : "..Mol[i].brut.." nb : "..Mol[i].nbmol.." >")
+            if Mol[i].positivite then utils.writeL(toFile, "    "..Mol[i].positivite.n.." "..Mol[i].positivite.t) end
+            if Mol[i].exist then utils.writeL(toFile, "    La molecule existe") end
+            if Mol[i].n then utils.writeL(toFile, "    Mol en mol : "..Mol[i].n) end
+            if Mol[i].mmol then utils.writeL(toFile, "    Masse Molaire en g/mol : "..Mol[i].mmol) end
+            if Mol[i].vol then utils.writeL(toFile, "    Volume en Litre : "..Mol[i].vol) end
+            if Mol[i].conc then utils.writeL(toFile, "    Concentration en mol/L : "..Mol[i].conc) end
+            if Mol[i].masse then utils.writeL(toFile, "    Masse en g : "..Mol[i].masse) end
+            if Mol[i].ks then utils.writeL(toFile, "    Ks : "..Mol[i].ks) end
+
+        end
+        for i in ipairs(errR) do
+            utils.writeL(toFile, "Reaction numero : ".. i)
+            if errR.xmax[i] then utils.writeL(toFile, "     Xmax : ".. errR.xmax[i]) end
+        end
+        local JF = io.open("Finish/Json[".. Date .."].json", "w+")
+        local json = require('json')
+        --JF:write(json.encode(Mol))
+        JF:close()
         toFile:close()
     end
 end
